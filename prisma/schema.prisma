@@ -1,0 +1,103 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  // Local dev uses "sqlite" (DATABASE_URL="file:./dev.db").
+  // For Vercel + Hosted PostgreSQL (Neon / Supabase), set provider = "postgresql"
+  // and optionally uncomment directUrl = env("DIRECT_URL") for pooled migrations.
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+  // directUrl = env("DIRECT_URL")
+}
+
+enum Role {
+  OWNER
+  STAFF
+  CUSTOMER
+}
+
+enum ChannelType {
+  WHATSAPP
+  INSTAGRAM
+  DARAZ
+  WEBSITE
+}
+
+enum OrderStatus {
+  PENDING_VERIFICATION
+  CONFIRMED
+  DISPATCHED
+  DELIVERED
+  RTO_RETURNED
+  CANCELLED
+}
+
+enum RiskLevel {
+  SAFE
+  MODERATE
+  HIGH_RISK
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String?  @unique
+  phone     String?  @unique
+  password  String
+  role      Role     @default(CUSTOMER)
+  createdAt DateTime @default(now())
+  orders    Order[]
+}
+
+model Product {
+  id         String      @id @default(cuid())
+  sku        String      @unique
+  name       String
+  category   String?
+  price      Float
+  stock      Int         @default(0)
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+  orderItems OrderItem[]
+}
+
+model Order {
+  id              String      @id @default(cuid())
+  orderNumber     String      @unique
+  channel         ChannelType
+  customerName    String
+  customerPhone   String
+  customerAddress String
+  city            String
+  totalAmount     Float
+  status          OrderStatus @default(PENDING_VERIFICATION)
+  riskScore       Int?
+  riskLevel       RiskLevel?
+  riskReason      String?
+  courierName     String?
+  trackingNumber  String?
+  customerId      String?
+  customer        User?       @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  items           OrderItem[]
+
+  @@index([customerPhone])
+  @@index([customerId])
+  @@index([status])
+  @@index([channel])
+}
+
+model OrderItem {
+  id        String  @id @default(cuid())
+  orderId   String
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+  quantity  Int
+  unitPrice Float
+
+  @@index([orderId])
+  @@index([productId])
+}

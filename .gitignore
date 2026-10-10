@@ -1,0 +1,53 @@
+# Dependencies
+/node_modules
+/.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# Next.js & Production Builds
+/.next/
+/out/
+/dist/
+/build/
+
+# Caches & TypeScript Build Info
+.turbo
+*.tsbuildinfo
+next-env.d.ts
+
+# Vercel
+.vercel
+
+# Environment Variables (Never commit secrets or database credentials)
+.env
+.env.local
+.env.development
+.env.development.local
+.env.test
+.env.test.local
+.env.production
+.env.production.local
+.env*.local
+!.env.example
+
+# Local SQLite Databases (Keep schema, migrations, and seed tracked)
+prisma/*.db
+prisma/*.db-journal
+prisma/*.db-shm
+prisma/*.db-wal
+!prisma/schema.prisma
+!prisma/seed.ts
+!prisma/migrations/**
+
+# Logs & OS Artifacts
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+.DS_Store
+*.pem
+Thumbs.db
