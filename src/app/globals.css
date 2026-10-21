@@ -49,6 +49,7 @@
   html {
     background-color: #F8FAFC;
     color: #0F172A;
+    overflow-x: hidden;
     scrollbar-width: thin;
     scrollbar-color: #CBD5E1 transparent;
   }
@@ -56,6 +57,7 @@
   body {
     background-color: #F8FAFC;
     color: #0F172A;
+    overflow-x: hidden;
     @apply antialiased selection:bg-slate-900 selection:text-white;
   }
 }

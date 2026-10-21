@@ -66,14 +66,14 @@ export default function DashboardOverviewPage() {
   ];
 
   return (
-    <div className="space-y-6 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-entry">
+    <div className="space-y-6 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 animate-entry">
       {/* 1. Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-xl font-semibold text-slate-900">
+          <h1 className="text-xl sm:text-2xl font-semibold text-slate-900 tracking-tight">
             Overview
           </h1>
-          <p className="text-sm text-slate-500 mt-0.5">
+          <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
             Track daily sales, pending shipments, and COD returns across channels.
           </p>
         </div>
@@ -226,8 +226,8 @@ export default function DashboardOverviewPage() {
               </Link>
             </div>
 
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse text-xs">
+            <div className="w-full overflow-x-auto -mx-4 sm:mx-0 px-4 sm:px-0">
+              <table className="w-full min-w-[650px] text-left border-collapse text-xs">
                 <thead>
                   <tr className="border-b border-slate-100 text-slate-500 bg-slate-50/60 font-medium uppercase tracking-wider text-[11px]">
                     <th className="py-3 px-4">Order ID</th>

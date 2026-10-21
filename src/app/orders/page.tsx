@@ -809,14 +809,14 @@ export default function OrdersPage() {
       )}
 
       {/* Main Content Container */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6">
         {/* Page Title & Actions */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 animate-entry">
           <div>
-            <h1 className="text-xl font-semibold text-slate-900">
+            <h1 className="text-xl sm:text-2xl font-semibold text-slate-900 tracking-tight">
               Orders &amp; Dispatch
             </h1>
-            <p className="text-sm text-slate-500 mt-0.5">
+            <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
               Daily dispatch queue, cash-on-delivery risk verification, and courier tracking.
             </p>
           </div>
@@ -1175,7 +1175,7 @@ export default function OrdersPage() {
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search by Customer, Order #OMS-1049, Phone, City, or AWB..."
                 aria-label="Search by Customer Name, Order ID, Phone, or Tracking Number"
-                className="w-full pl-10 pr-4 py-2 text-xs sm:text-sm bg-[#F8FAFC] border border-slate-200/80 rounded-xl text-[#0F172A] placeholder:text-slate-400 focus-visible:ring-2 focus-visible:ring-slate-900/10 focus-visible:border-slate-300 focus-visible:bg-white focus-visible:outline-none transition-all"
+                className="w-full pl-10 pr-4 h-10 py-2.5 text-base sm:text-sm bg-[#F8FAFC] border border-slate-200/80 rounded-xl text-[#0F172A] placeholder:text-slate-400 focus-visible:ring-2 focus-visible:ring-slate-900/10 focus-visible:border-slate-300 focus-visible:bg-white focus-visible:outline-none transition-all"
               />
             </div>
 
@@ -1195,8 +1195,8 @@ export default function OrdersPage() {
           </div>
 
           {/* Responsive Orders Table */}
-          <div className="overflow-x-auto">
-            <table className="w-full border-collapse text-left">
+          <div className="w-full overflow-x-auto -mx-4 sm:mx-0 px-4 sm:px-0">
+            <table className="w-full min-w-[650px] border-collapse text-left">
               <thead>
                 <tr className="border-b border-slate-100 bg-[#F8FAFC] text-[11px] font-semibold uppercase tracking-wider text-[#64748B]">
                   <th scope="col" className="py-3.5 pl-6 pr-2 w-10">

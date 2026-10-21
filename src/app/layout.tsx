@@ -29,9 +29,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning className="bg-slate-50 text-slate-900">
+    <html lang="en" suppressHydrationWarning className="bg-slate-50 text-slate-900 overflow-x-hidden">
       <body
-        className="bg-slate-50 text-slate-900 antialiased min-h-screen"
+        className="bg-slate-50 text-slate-900 antialiased min-h-screen overflow-x-hidden"
         suppressHydrationWarning
       >
         <OmniSyncProvider>

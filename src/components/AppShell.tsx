@@ -476,7 +476,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <div
         onClick={() => setMobileDrawerOpen(false)}
         aria-hidden="true"
-        className={`fixed inset-0 z-40 bg-slate-900/20 backdrop-blur-sm transition-opacity duration-300 lg:hidden print:hidden ${
+        className={`fixed inset-0 z-40 bg-slate-900/40 backdrop-blur-xs transition-opacity duration-300 lg:hidden print:hidden ${
           mobileDrawerOpen
             ? "opacity-100 pointer-events-auto"
             : "opacity-0 pointer-events-none"
@@ -486,9 +486,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       {/* Collapsible Editorial Sidebar */}
       <aside
         aria-label="Primary Sidebar Navigation"
-        className={`fixed inset-y-0 left-0 z-50 flex flex-col bg-white border-r border-slate-200/80 shadow-[0_1px_3px_rgba(0,0,0,0.04)] transition-all duration-300 ease-in-out lg:static lg:translate-x-0 print:hidden ${
+        className={`fixed inset-y-0 left-0 z-50 flex flex-col bg-white border-r border-slate-200/80 shadow-2xl transition-transform duration-300 ease-in-out lg:static lg:translate-x-0 lg:shadow-[0_1px_3px_rgba(0,0,0,0.04)] print:hidden ${
           mobileDrawerOpen ? "translate-x-0" : "-translate-x-full"
-        } ${isCollapsed ? "lg:w-20" : "lg:w-64"} w-64 shrink-0`}
+        } ${isCollapsed ? "lg:w-20" : "lg:w-60"} w-64 max-w-[85vw] shrink-0`}
       >
         {/* Brand Header */}
         <div
@@ -500,6 +500,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         >
           <Link
             href={currentRole === "WAREHOUSE" ? "/orders" : "/"}
+            onClick={() => setMobileDrawerOpen(false)}
             className="flex items-center gap-3 min-w-0 focus-visible:ring-2 focus-visible:ring-slate-900/10 focus-visible:outline-none rounded-xl"
             title="OmniSync — Multi-Channel E-Commerce"
           >
@@ -626,6 +627,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             </div>
             <Link
               href="/track/OMS-1049"
+              onClick={() => setMobileDrawerOpen(false)}
               className={`group flex items-center ${
                 isCollapsed
                   ? "lg:justify-center lg:px-0 px-3"
@@ -687,33 +689,39 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Persistent Top Navigation / Header Bar */}
-        {/* Persistent Top Navigation / Header Bar */}
-        <header className="h-16 px-4 sm:px-6 lg:px-8 border-b border-slate-200/80 bg-white flex items-center justify-between sticky top-0 z-30 print:hidden">
-          <div className="flex items-center gap-3 min-w-0">
+        <header className="h-16 px-3 sm:px-6 lg:px-8 border-b border-slate-200/80 bg-white flex items-center justify-between sticky top-0 z-30 print:hidden">
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
             <button
               type="button"
               onClick={() => setMobileDrawerOpen(true)}
               aria-label="Open navigation drawer"
-              className="lg:hidden p-2 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 border border-slate-200/80 active:scale-[0.98] transition-transform duration-100 ease-in-out"
+              className="lg:hidden p-2 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 border border-slate-200/80 active:scale-[0.98] transition-all shrink-0 cursor-pointer"
             >
               <Menu className="w-4 h-4" />
             </button>
 
-            <div className="flex lg:hidden items-center gap-2">
-              <div className="w-7 h-7 rounded-lg bg-slate-900 flex items-center justify-center text-white">
+            {/* Mobile Title with Brand Icon */}
+            <div className="flex lg:hidden items-center gap-2 min-w-0">
+              <div className="w-7 h-7 rounded-lg bg-slate-900 flex items-center justify-center text-white shrink-0">
                 <ShoppingBag className="w-3.5 h-3.5" />
               </div>
-              <span className="font-semibold text-sm text-slate-900">OmniSync</span>
+              <div className="flex items-center gap-1.5 min-w-0">
+                <span className="font-semibold text-sm text-slate-900 hidden sm:inline">OmniSync</span>
+                <span className="text-slate-300 hidden sm:inline">/</span>
+                <span className="text-xs sm:text-sm font-semibold text-slate-800 truncate max-w-[130px] sm:max-w-[200px]">
+                  {currentRouteTitle}
+                </span>
+              </div>
             </div>
 
-            {/* Simple Search Bar */}
-            <div className="hidden sm:flex items-center relative w-64 md:w-80">
+            {/* Simple Search Bar (Tablet / Desktop) */}
+            <div className="hidden md:flex items-center relative w-56 lg:w-80">
               <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
               <input
                 type="search"
                 placeholder="Search orders, inventory..."
                 aria-label="Search orders and inventory"
-                className="w-full pl-9 pr-3 py-1.5 text-xs bg-slate-50 border border-slate-200/80 rounded-lg text-slate-900 placeholder:text-slate-400 focus:outline-none focus:bg-white focus:ring-1 focus:ring-slate-300 transition-all"
+                className="w-full pl-9 pr-3 h-9 text-xs sm:text-sm bg-slate-50 border border-slate-200/80 rounded-lg text-slate-900 placeholder:text-slate-400 focus:outline-none focus:bg-white focus:ring-1 focus:ring-slate-300 transition-all"
                 onKeyDown={(e) => {
                   if (e.key === "Enter") {
                     const q = (e.target as HTMLInputElement).value;
@@ -725,9 +733,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </div>
 
           {/* Minimal Top Bar Actions: Role Switcher & User Avatar / Logout */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
             {/* Role Switcher (Owner/Staff) */}
-            <div className="flex items-center gap-1.5 rounded-lg bg-slate-50 border border-slate-200/80 px-2.5 py-1.5">
+            <div className="flex items-center gap-1 sm:gap-1.5 rounded-lg bg-slate-50 border border-slate-200/80 px-2 sm:px-2.5 py-1.5">
               <span className="hidden sm:inline text-xs text-slate-500 font-medium">
                 Role:
               </span>
@@ -735,7 +743,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 aria-label="Switch User Role"
                 value={currentRole}
                 onChange={(e) => setCurrentRole(e.target.value as UserRole)}
-                className="bg-transparent text-xs font-semibold text-slate-900 focus:outline-none cursor-pointer"
+                className="bg-transparent text-xs font-semibold text-slate-900 focus:outline-none cursor-pointer max-w-[95px] sm:max-w-none truncate"
               >
                 <option value="OWNER">Owner (Admin)</option>
                 <option value="WAREHOUSE">Warehouse Staff</option>
@@ -745,9 +753,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             </div>
 
             {/* User Avatar & Logout */}
-            <div className="flex items-center gap-2 pl-3 border-l border-slate-200/80">
+            <div className="flex items-center gap-1.5 sm:gap-2 pl-2 sm:pl-3 border-l border-slate-200/80">
               <div
-                className="w-8 h-8 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-xs font-semibold text-slate-700"
+                className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-xs font-semibold text-slate-700 shrink-0"
                 title={`Signed in as ${currentRole}`}
               >
                 {currentRole === "OWNER" ? "ZT" : currentRole.slice(0, 2)}
