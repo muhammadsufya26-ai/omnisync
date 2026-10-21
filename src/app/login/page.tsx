@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ShieldCheck, Truck, ArrowRight, Lock, Mail } from "lucide-react";
+import { ShieldCheck, ArrowRight, Lock, Mail } from "lucide-react";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -20,7 +20,7 @@ export default function LoginPage() {
       } else {
         router.push("/customer/orders");
       }
-    }, 600);
+    }, 500);
   };
 
   const setDemoUser = (userRole: "OWNER" | "CUSTOMER") => {
@@ -36,18 +36,15 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col justify-center items-center px-4 py-12">
-      {/* Brand Header */}
       <div className="text-center mb-8">
         <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-slate-900 text-white mb-3 shadow-sm">
-          <ShieldCheck className="w-6 h-6"/>
+          <ShieldCheck className="w-6 h-6" />
         </div>
         <h1 className="text-2xl font-semibold tracking-tight text-slate-900">OmniSync</h1>
         <p className="text-sm text-slate-500 mt-1">Multi-channel order fulfillment & dispatch</p>
       </div>
 
-      {/* Main Card */}
       <div className="w-full max-w-[420px] bg-white border border-slate-200 rounded-2xl shadow-sm p-6 sm:p-8">
-        {/* Role Selector Tabs */}
         <div className="grid grid-cols-2 gap-1 bg-slate-100 p-1 rounded-lg mb-6">
           <button
             type="button"
@@ -73,21 +70,20 @@ export default function LoginPage() {
           </button>
         </div>
 
-        {/* Form */}
         <form onSubmit={handleLogin} className="space-y-4">
           <div>
             <label className="block text-xs font-medium text-slate-700 mb-1.5">
               {role === "OWNER" ? "Work Email" : "Registered Email or Phone"}
             </label>
             <div className="relative">
-              <Mail className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"/>
+              <Mail className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder={role === "OWNER" ? "name@company.com" : "0300-1234567"}
-                className="w-full pl-9 pr-3 py-2 text-sm bg-white border border-slate-200 rounded-lg text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-slate-900 focus:ring-1 focus:ring-slate-900 transition-all"
+                className="w-full pl-9 pr-3 py-2 text-sm bg-white border border-slate-200 rounded-lg text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-slate-900 focus:ring-1 focus:ring-slate-900"
               />
             </div>
           </div>
@@ -100,14 +96,14 @@ export default function LoginPage() {
               </button>
             </div>
             <div className="relative">
-              <Lock className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"/>
+              <Lock className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
               <input
                 type="password"
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full pl-9 pr-3 py-2 text-sm bg-white border border-slate-200 rounded-lg text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-slate-900 focus:ring-1 focus:ring-slate-900 transition-all"
+                className="w-full pl-9 pr-3 py-2 text-sm bg-white border border-slate-200 rounded-lg text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-slate-900 focus:ring-1 focus:ring-slate-900"
               />
             </div>
           </div>
@@ -115,28 +111,27 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full mt-2 inline-flex items-center justify-center gap-2 bg-slate-900 hover:bg-slate-800 text-white font-medium text-sm py-2.5 rounded-lg transition-all active:scale-[0.99] disabled:opacity-60"
+            className="w-full mt-2 inline-flex items-center justify-center gap-2 bg-slate-900 hover:bg-slate-800 text-white font-medium text-sm py-2.5 rounded-lg transition-all disabled:opacity-60"
           >
             {loading ? "Signing in..." : role === "OWNER" ? "Sign in to Dashboard" : "View My Orders"}
-            <ArrowRight className="w-4 h-4"/>
+            <ArrowRight className="w-4 h-4" />
           </button>
         </form>
 
-        {/* Demo Fast Fill */}
         <div className="mt-6 pt-5 border-t border-slate-100 text-center">
-          <p className="text-[11px] text-slate-400 mb-2.5">Demo fast access:</p>
+          <p className="text-[11px] text-slate-400 mb-2">Demo fast access:</p>
           <div className="flex justify-center gap-2">
             <button
               type="button"
               onClick={() => setDemoUser("OWNER")}
-              className="text-xs px-2.5 py-1 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium transition-colors"
+              className="text-xs px-2.5 py-1 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium"
             >
               Fill Owner
             </button>
             <button
               type="button"
               onClick={() => setDemoUser("CUSTOMER")}
-              className="text-xs px-2.5 py-1 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium transition-colors"
+              className="text-xs px-2.5 py-1 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium"
             >
               Fill Customer
             </button>
