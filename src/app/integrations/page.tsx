@@ -6,14 +6,10 @@ import {
   ShoppingCart,
   Globe,
   ShoppingBag,
-  Layers,
   CheckCircle2,
   AlertTriangle,
   XCircle,
-  Settings2,
   RefreshCw,
-  PlugZap,
-  Unplug,
   KeyRound,
   Link2,
   Webhook,
@@ -21,9 +17,9 @@ import {
   X,
   Eye,
   EyeOff,
-  Sparkles,
-  ShieldCheck,
+  SlidersHorizontal,
 } from "lucide-react";
+import { useOmniSync } from "@/context/OmniSyncContext";
 
 export type MarketplaceId =
   | "shopify"
@@ -55,129 +51,31 @@ export interface MarketplaceIntegration {
 
 const STORAGE_KEY = "omnisync_channel_integrations_v1";
 
-const INITIAL_INTEGRATIONS: MarketplaceIntegration[] = [
-  {
-    id: "shopify",
-    name: "Shopify",
-    subtitle: "Direct storefront orders, inventory & webhook events",
-    status: "Connected",
-    lastSynced: "Synced 5 mins ago",
-    ordersSynced24h: 148,
-    credentials: {
-      storeUrl: "https://omnisync-flagship.myshopify.com",
-      apiKey: "shpat_9f84b2c10e774a9183d2e110",
-      webhookSecret: "whsec_shp_77a19c04f8b221",
-      autoSyncInterval: "5m",
-    },
-  },
-  {
-    id: "amazon",
-    name: "Amazon Seller Central",
-    subtitle: "SP-API order polling for FBA & FBM marketplace listings",
-    status: "Connected",
-    lastSynced: "Synced 12 mins ago",
-    ordersSynced24h: 94,
-    credentials: {
-      storeUrl: "https://sellercentral.amazon.com/mws/A29X01",
-      apiKey: "amzn1.sp.solution.8831-904a-bc12",
-      webhookSecret: "whsec_amz_4490d81e30c2",
-      autoSyncInterval: "15m",
-    },
-  },
-  {
-    id: "etsy",
-    name: "Etsy",
-    subtitle: "Open API v3 receipts, custom orders & dispatch tracking",
-    status: "Connected",
-    lastSynced: "Synced 22 mins ago",
-    ordersSynced24h: 41,
-    credentials: {
-      storeUrl: "https://www.etsy.com/shop/OmniSyncCraft",
-      apiKey: "etsy_v3_k91820471a8c44",
-      webhookSecret: "whsec_ets_1904b882a1",
-      autoSyncInterval: "15m",
-    },
-  },
-  {
-    id: "ebay",
-    name: "eBay",
-    subtitle: "Fulfillment API for fixed-price & auction order ingest",
-    status: "Sync Error",
-    lastSynced: "Attempted 18 mins ago",
-    ordersSynced24h: 12,
-    errorMessage: "OAuth refresh token expired — re-verify API credentials.",
-    credentials: {
-      storeUrl: "https://www.ebay.com/str/omnisyncdirect",
-      apiKey: "ebay_prd_44109a8b7c6d5e",
-      webhookSecret: "whsec_eby_0091283746",
-      autoSyncInterval: "30m",
-    },
-  },
-  {
-    id: "woocommerce",
-    name: "WooCommerce",
-    subtitle: "REST API v3 self-hosted WordPress storefront connector",
-    status: "Disconnected",
-    lastSynced: "Never synced",
-    ordersSynced24h: 0,
-    credentials: {
-      storeUrl: "",
-      apiKey: "",
-      webhookSecret: "",
-      autoSyncInterval: "15m",
-    },
-  },
-];
-
 const CHANNEL_VISUALS: Record<
   MarketplaceId,
   {
     icon: React.ComponentType<{ className?: string }>;
-    iconBg: string;
-    iconText: string;
-    iconBorder: string;
-    accentRing: string;
     tagLabel: string;
   }
 > = {
   shopify: {
     icon: Store,
-    iconBg: "bg-emerald-500/15",
-    iconText: "text-emerald-400",
-    iconBorder: "border-emerald-500/30",
-    accentRing: "hover:border-emerald-500/40",
-    tagLabel: "GraphQL Admin API",
+    tagLabel: "Shopify API v2026",
   },
   amazon: {
     icon: ShoppingCart,
-    iconBg: "bg-amber-500/15",
-    iconText: "text-amber-400",
-    iconBorder: "border-amber-500/30",
-    accentRing: "hover:border-amber-500/40",
-    tagLabel: "Selling Partner API",
+    tagLabel: "SP-API v2",
   },
   etsy: {
     icon: Globe,
-    iconBg: "bg-orange-500/15",
-    iconText: "text-orange-400",
-    iconBorder: "border-orange-500/30",
-    accentRing: "hover:border-orange-500/40",
-    tagLabel: "Open API v3",
+    tagLabel: "Etsy Open API v3",
   },
   ebay: {
     icon: ShoppingBag,
-    iconBg: "bg-sky-500/15",
-    iconText: "text-sky-400",
-    iconBorder: "border-sky-500/30",
-    accentRing: "hover:border-sky-500/40",
-    tagLabel: "Fulfillment REST",
+    tagLabel: "eBay Fulfillment API",
   },
   woocommerce: {
-    icon: Layers,
-    iconBg: "bg-purple-500/15",
-    iconText: "text-purple-400",
-    iconBorder: "border-purple-500/30",
-    accentRing: "hover:border-purple-500/40",
+    icon: Store,
     tagLabel: "WP REST v3",
   },
 };
@@ -193,42 +91,72 @@ const STATUS_STYLES: Record<
   }
 > = {
   Connected: {
-    bg: "bg-emerald-500/15",
-    text: "text-emerald-300",
-    border: "border-emerald-500/30",
-    dot: "bg-emerald-400",
+    bg: "bg-emerald-50",
+    text: "text-emerald-700",
+    border: "border-emerald-200/60",
+    dot: "bg-emerald-600",
     icon: CheckCircle2,
   },
   "Sync Error": {
-    bg: "bg-rose-500/15",
-    text: "text-rose-300",
-    border: "border-rose-500/30",
-    dot: "bg-rose-400",
+    bg: "bg-amber-50",
+    text: "text-amber-700",
+    border: "border-amber-200/60",
+    dot: "bg-amber-600",
     icon: AlertTriangle,
   },
   Disconnected: {
-    bg: "bg-neutral-800/90",
-    text: "text-neutral-400",
-    border: "border-neutral-700",
-    dot: "bg-neutral-500",
+    bg: "bg-slate-100",
+    text: "text-slate-700",
+    border: "border-slate-200/60",
+    dot: "bg-slate-400",
     icon: XCircle,
   },
 };
 
 const SYNC_INTERVAL_OPTIONS: Array<{ value: SyncInterval; label: string }> = [
   { value: "5m", label: "Every 5 minutes (Real-time)" },
-  { value: "15m", label: "Every 15 minutes (Recommended)" },
+  { value: "15m", label: "Every 15 minutes (Standard)" },
   { value: "30m", label: "Every 30 minutes" },
   { value: "1h", label: "Every 1 hour" },
 ];
 
-import { useOmniSync } from "@/context/OmniSyncContext";
+function Toggle({
+  checked,
+  onChange,
+  disabled,
+  label,
+}: {
+  checked: boolean;
+  onChange: (val: boolean) => void;
+  disabled?: boolean;
+  label?: string;
+}) {
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={checked}
+      aria-label={label}
+      disabled={disabled}
+      onClick={() => onChange(!checked)}
+      className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-900/10 ${
+        checked ? "bg-slate-900" : "bg-slate-200"
+      } ${disabled ? "opacity-50 cursor-not-allowed" : ""}`}
+    >
+      <span
+        aria-hidden="true"
+        className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out ${
+          checked ? "translate-x-4" : "translate-x-0"
+        }`}
+      />
+    </button>
+  );
+}
 
 export default function IntegrationsPage() {
   const { integrations, setIntegrations, permissions, currentRole } =
     useOmniSync();
 
-  // Modal State
   const [activeChannelId, setActiveChannelId] = useState<MarketplaceId | null>(
     null
   );
@@ -240,11 +168,7 @@ export default function IntegrationsPage() {
   });
   const [showSecrets, setShowSecrets] = useState<boolean>(false);
   const [isSavingModal, setIsSavingModal] = useState<boolean>(false);
-
-  // Per-card Syncing Spinner State
   const [syncingIds, setSyncingIds] = useState<Record<string, boolean>>({});
-
-  // Toast State
   const [toast, setToast] = useState<{ id: number; message: string } | null>(
     null
   );
@@ -257,89 +181,59 @@ export default function IntegrationsPage() {
     }, 4000);
   };
 
-  // Close modal on Escape key
-  useEffect(() => {
-    if (!activeChannelId) return;
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        setActiveChannelId(null);
-      }
-    };
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
-  }, [activeChannelId]);
-
   const activeChannel = useMemo(
-    () => integrations.find((item) => item.id === activeChannelId) ?? null,
+    () => integrations.find((item) => item.id === activeChannelId) || null,
     [integrations, activeChannelId]
   );
 
-  // Open Configure / Connect Modal
-  const handleOpenModal = (channel: MarketplaceIntegration) => {
-    if (!permissions.canManageIntegrations) {
-      showToast(
-        `Role ${currentRole} cannot view or modify API credentials & webhook secrets.`
-      );
-      return;
-    }
-    setActiveChannelId(channel.id);
-    setShowSecrets(false);
-    setFormState({
-      storeUrl:
-        channel.credentials.storeUrl ||
-        `https://store.${channel.id}.com/omnisync`,
-      apiKey: channel.credentials.apiKey || "",
-      webhookSecret: channel.credentials.webhookSecret || "",
-      autoSyncInterval: channel.credentials.autoSyncInterval || "15m",
-    });
-  };
+  const summary = useMemo(() => {
+    const connected = integrations.filter(
+      (item) => item.status === "Connected"
+    ).length;
+    const errors = integrations.filter(
+      (item) => item.status === "Sync Error"
+    ).length;
+    const total24hOrders = integrations.reduce(
+      (acc, item) => acc + item.ordersSynced24h,
+      0
+    );
+    return { connected, errors, total24hOrders };
+  }, [integrations]);
 
-  // Quick Toggle Switch (Connect / Disconnect)
   const handleToggleConnection = (channel: MarketplaceIntegration) => {
     if (!permissions.canManageIntegrations) {
       showToast(
-        `Role ${currentRole} cannot toggle storefront connections.`
+        `Role ${currentRole} has read-only access and cannot toggle marketplace integrations.`
       );
       return;
     }
-    if (channel.status === "Connected") {
-      setIntegrations((prev) =>
-        prev.map((item) =>
-          item.id === channel.id
-            ? {
-                ...item,
-                status: "Disconnected",
-                lastSynced: "Disconnected just now",
-                errorMessage: undefined,
-              }
-            : item
-        )
-      );
-      showToast(`Disconnected ${channel.name} storefront.`);
-    } else {
-      // If credentials are empty, open the modal to let user configure first
-      if (!channel.credentials.apiKey.trim()) {
-        handleOpenModal(channel);
-        return;
-      }
 
-      setIntegrations((prev) =>
-        prev.map((item) =>
-          item.id === channel.id
-            ? {
-                ...item,
-                status: "Connected",
-                lastSynced: "Synced just now",
-                errorMessage: undefined,
-              }
-            : item
-        )
-      );
-      showToast(`Connected ${channel.name} and resumed auto-sync.`);
-    }
+    const nextStatus: ConnectionStatus =
+      channel.status === "Connected" ? "Disconnected" : "Connected";
+
+    setIntegrations((prev) =>
+      prev.map((item) =>
+        item.id === channel.id
+          ? {
+              ...item,
+              status: nextStatus,
+              lastSynced:
+                nextStatus === "Connected"
+                  ? "Connected just now"
+                  : item.lastSynced,
+              errorMessage: undefined,
+            }
+          : item
+      )
+    );
+
+    showToast(
+      `${channel.name} integration ${
+        nextStatus === "Connected" ? "enabled" : "disabled"
+      }.`
+    );
   };
 
-  // Trigger Manual Channel Sync on a Card
   const handleTriggerChannelSync = (channel: MarketplaceIntegration) => {
     if (syncingIds[channel.id]) return;
     setSyncingIds((prev) => ({ ...prev, [channel.id]: true }));
@@ -359,11 +253,22 @@ export default function IntegrationsPage() {
         )
       );
       setSyncingIds((prev) => ({ ...prev, [channel.id]: false }));
-      showToast(`Successfully synced latest orders from ${channel.name}.`);
-    }, 1200);
+      showToast(`Synced latest orders from ${channel.name}.`);
+    }, 1000);
   };
 
-  // Save Credentials from Modal
+  const handleOpenConfigureModal = (channel: MarketplaceIntegration) => {
+    if (!permissions.canManageIntegrations) {
+      showToast(
+        `Role ${currentRole} is restricted from viewing or modifying API secrets.`
+      );
+      return;
+    }
+    setActiveChannelId(channel.id);
+    setFormState({ ...channel.credentials });
+    setShowSecrets(false);
+  };
+
   const handleSaveModal = (e: React.FormEvent) => {
     e.preventDefault();
     if (!activeChannel) return;
@@ -378,505 +283,341 @@ export default function IntegrationsPage() {
                 status: "Connected",
                 lastSynced: "Synced just now",
                 errorMessage: undefined,
-                ordersSynced24h:
-                  item.ordersSynced24h > 0 ? item.ordersSynced24h : 18,
-                credentials: {
-                  storeUrl: formState.storeUrl.trim(),
-                  apiKey: formState.apiKey.trim(),
-                  webhookSecret: formState.webhookSecret.trim(),
-                  autoSyncInterval: formState.autoSyncInterval,
-                },
+                credentials: { ...formState },
               }
             : item
         )
       );
       setIsSavingModal(false);
       setActiveChannelId(null);
-      showToast(
-        `Saved ${activeChannel.name} credentials & connected (Auto-sync: ${formState.autoSyncInterval}).`
-      );
-    }, 600);
+      showToast(`${activeChannel.name} credentials updated.`);
+    }, 800);
   };
 
-  const summary = useMemo(() => {
-    const connected = integrations.filter(
-      (i) => i.status === "Connected"
-    ).length;
-    const errors = integrations.filter(
-      (i) => i.status === "Sync Error"
-    ).length;
-    const total24hOrders = integrations.reduce(
-      (sum, i) => sum + i.ordersSynced24h,
-      0
-    );
-    return { connected, errors, total24hOrders };
-  }, [integrations]);
-
   return (
-    <div className="min-h-screen bg-neutral-950 text-neutral-100 flex flex-col pb-16">
-      {/* Top Header */}
-      <header className="sticky top-0 z-20 border-b border-neutral-800/80 bg-neutral-950/85 backdrop-blur-md">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <span className="inline-flex items-center gap-1.5 text-xs font-medium text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1 rounded-lg">
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>Multi-Channel Storefront Mesh</span>
-            </span>
-            <span className="hidden sm:inline text-xs text-neutral-400">
-              <strong className="text-white">{summary.connected}</strong> of{" "}
-              <strong className="text-white">{integrations.length}</strong>{" "}
-              channels active
-            </span>
-          </div>
-
-          <div className="flex items-center gap-3">
-            {summary.errors > 0 && (
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-rose-500/15 text-rose-300 border border-rose-500/30">
-                <AlertTriangle className="w-3.5 h-3.5 text-rose-400" />
-                {summary.errors} Sync Error
-              </span>
-            )}
-            <span className="hidden md:inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-neutral-900 text-neutral-300 border border-neutral-800">
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-              {summary.total24hOrders} orders ingested (24h)
-            </span>
-          </div>
-        </div>
-      </header>
-
+    <div className="space-y-6 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-entry">
       {/* Toast Notification */}
       {toast && (
         <div
           role="status"
           aria-live="polite"
-          className="fixed top-20 right-5 z-50 flex items-center gap-3 px-4 py-3 rounded-xl bg-neutral-900/95 border border-emerald-500/40 text-neutral-100 text-xs font-medium shadow-2xl backdrop-blur-md"
+          className="fixed top-20 right-5 z-50 flex items-center gap-3 px-4 py-3 rounded-xl bg-white border border-slate-200/90 text-slate-900 text-xs font-medium shadow-[0_10px_25px_-5px_rgba(15,23,42,0.12)] animate-entry"
         >
-          <div className="w-6 h-6 rounded-lg bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center shrink-0">
-            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+          <div className="w-6 h-6 rounded-lg bg-emerald-50 border border-emerald-200 flex items-center justify-center shrink-0">
+            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
           </div>
           <span>{toast.message}</span>
           <button
             type="button"
             onClick={() => setToast(null)}
             aria-label="Dismiss notification"
-            className="text-neutral-500 hover:text-neutral-200 transition-colors cursor-pointer"
+            className="text-slate-400 hover:text-slate-700 transition-colors cursor-pointer"
           >
             <X className="w-3.5 h-3.5" />
           </button>
         </div>
       )}
 
-      {/* Main Content */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-        {/* Heading */}
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">
-              Integrations &amp; Channel Connect
-            </h1>
-            <p className="text-sm text-neutral-400 mt-1">
-              Manage API credentials, webhook secrets, and automatic order
-              polling intervals across all marketplace storefronts.
-            </p>
-          </div>
+      {/* Page Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-xl font-semibold text-slate-900">
+            Storefront Integrations
+          </h1>
+          <p className="text-sm text-slate-500 mt-0.5">
+            Connect marketplace storefronts, configure API tokens, and monitor sync webhooks.
+          </p>
         </div>
 
-        {/* Channel Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
-          {integrations.map((channel) => {
-            const visual = CHANNEL_VISUALS[channel.id];
-            const Icon = visual.icon;
-            const statusStyle = STATUS_STYLES[channel.status];
-            const StatusIcon = statusStyle.icon;
-            const isConnected = channel.status === "Connected";
-            const isSyncingCard = !!syncingIds[channel.id];
-
-            return (
-              <div
-                key={channel.id}
-                className={`group rounded-2xl bg-neutral-900/70 backdrop-blur-md border border-neutral-800/90 ${visual.accentRing} transition-all p-6 flex flex-col justify-between gap-5 shadow-lg`}
-              >
-                {/* Top Card Row: Icon Badge + Status Badge & Toggle */}
-                <div className="space-y-4">
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex items-center gap-3.5">
-                      <div
-                        className={`w-12 h-12 rounded-2xl border flex items-center justify-center shrink-0 ${visual.iconBg} ${visual.iconText} ${visual.iconBorder}`}
-                      >
-                        <Icon className="w-6 h-6" />
-                      </div>
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <h2 className="text-base font-bold text-white">
-                            {channel.name}
-                          </h2>
-                        </div>
-                        <span className="inline-block text-[11px] font-mono text-neutral-400 bg-neutral-950/80 border border-neutral-800 px-2 py-0.5 rounded mt-1">
-                          {visual.tagLabel}
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Quick Toggle Switch */}
-                    <button
-                      type="button"
-                      role="switch"
-                      aria-checked={isConnected}
-                      aria-label={`Toggle ${channel.name} connection`}
-                      onClick={() => handleToggleConnection(channel)}
-                      className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                        isConnected ? "bg-emerald-500" : "bg-neutral-800"
-                      }`}
-                    >
-                      <span
-                        className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out ${
-                          isConnected ? "translate-x-5" : "translate-x-0"
-                        }`}
-                      />
-                    </button>
-                  </div>
-
-                  <p className="text-xs text-neutral-400 leading-relaxed">
-                    {channel.subtitle}
-                  </p>
-
-                  {/* Status Badge & Sync Timestamp */}
-                  <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
-                    <span
-                      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold border ${statusStyle.bg} ${statusStyle.text} ${statusStyle.border}`}
-                    >
-                      <StatusIcon className="w-3.5 h-3.5" />
-                      {channel.status}
-                    </span>
-
-                    <span className="inline-flex items-center gap-1.5 text-xs text-neutral-400">
-                      <Clock className="w-3.5 h-3.5 text-neutral-500" />
-                      {channel.lastSynced}
-                    </span>
-                  </div>
-
-                  {/* Error Banner if Sync Error */}
-                  {channel.errorMessage && (
-                    <div className="rounded-xl bg-rose-500/10 border border-rose-500/25 px-3 py-2 text-xs text-rose-300 flex items-start gap-2">
-                      <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
-                      <span>{channel.errorMessage}</span>
-                    </div>
-                  )}
-
-                  {/* Metadata Strip */}
-                  <div className="rounded-xl bg-neutral-950/70 border border-neutral-800/80 px-3.5 py-2.5 grid grid-cols-2 gap-2 text-xs">
-                    <div>
-                      <span className="text-neutral-500 block text-[11px]">
-                        Auto-Sync Interval
-                      </span>
-                      <span className="font-mono font-semibold text-neutral-200">
-                        Every {channel.credentials.autoSyncInterval}
-                      </span>
-                    </div>
-                    <div className="text-right">
-                      <span className="text-neutral-500 block text-[11px]">
-                        24h Orders Synced
-                      </span>
-                      <span className="font-mono font-semibold text-emerald-400">
-                        {channel.ordersSynced24h} orders
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Card Footer Action Buttons */}
-                <div className="pt-3 border-t border-neutral-800/80 flex items-center justify-between gap-2.5">
-                  <button
-                    type="button"
-                    onClick={() => handleOpenModal(channel)}
-                    className="flex-1 inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold bg-neutral-800/90 hover:bg-neutral-800 text-neutral-100 border border-neutral-700/80 transition-colors cursor-pointer"
-                  >
-                    <Settings2 className="w-3.5 h-3.5 text-neutral-400" />
-                    <span>
-                      {channel.status === "Disconnected"
-                        ? "Configure & Connect"
-                        : "Configure"}
-                    </span>
-                  </button>
-
-                  {isConnected ? (
-                    <>
-                      <button
-                        type="button"
-                        onClick={() => handleTriggerChannelSync(channel)}
-                        disabled={isSyncingCard}
-                        title="Sync channel now"
-                        className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-500/30 transition-colors cursor-pointer disabled:opacity-60"
-                      >
-                        <RefreshCw
-                          className={`w-3.5 h-3.5 ${
-                            isSyncingCard ? "animate-spin" : ""
-                          }`}
-                        />
-                        <span>{isSyncingCard ? "Syncing" : "Sync"}</span>
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={() => handleToggleConnection(channel)}
-                        title="Disconnect channel"
-                        className="inline-flex items-center justify-center p-2 rounded-xl text-xs font-medium bg-neutral-950 hover:bg-rose-500/15 text-neutral-400 hover:text-rose-300 border border-neutral-800 hover:border-rose-500/30 transition-colors cursor-pointer"
-                        aria-label={`Disconnect ${channel.name}`}
-                      >
-                        <Unplug className="w-4 h-4" />
-                      </button>
-                    </>
-                  ) : (
-                    <button
-                      type="button"
-                      onClick={() =>
-                        channel.credentials.apiKey.trim()
-                          ? handleToggleConnection(channel)
-                          : handleOpenModal(channel)
-                      }
-                      className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold bg-emerald-500 hover:bg-emerald-400 text-neutral-950 transition-colors cursor-pointer"
-                    >
-                      <PlugZap className="w-3.5 h-3.5" />
-                      <span>
-                        {channel.status === "Sync Error"
-                          ? "Reconnect"
-                          : "Connect"}
-                      </span>
-                    </button>
-                  )}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </main>
-
-      {/* Interactive Connect / Configure Modal */}
-      <div
-        className={`fixed inset-0 z-50 flex items-center justify-center p-4 transition-opacity duration-300 ${
-          activeChannel
-            ? "opacity-100 pointer-events-auto"
-            : "opacity-0 pointer-events-none"
-        }`}
-        aria-hidden={!activeChannel}
-      >
-        {/* Backdrop */}
-        <div
-          onClick={() => setActiveChannelId(null)}
-          className="fixed inset-0 bg-black/70 backdrop-blur-xs transition-opacity"
-        />
-
-        {/* Modal Box */}
-        <div
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="channel-modal-title"
-          className={`relative z-10 w-full max-w-lg rounded-2xl bg-neutral-900 border border-neutral-800 shadow-2xl overflow-hidden transform transition-all duration-200 ${
-            activeChannel ? "scale-100 opacity-100" : "scale-95 opacity-0"
-          }`}
-        >
-          {activeChannel && (
-            <>
-              {/* Modal Header */}
-              <div className="px-6 py-5 border-b border-neutral-800 bg-neutral-950/60 flex items-center justify-between gap-4">
-                <div className="flex items-center gap-3">
-                  {(() => {
-                    const vis = CHANNEL_VISUALS[activeChannel.id];
-                    const ModalIcon = vis.icon;
-                    return (
-                      <div
-                        className={`w-10 h-10 rounded-xl border flex items-center justify-center ${vis.iconBg} ${vis.iconText} ${vis.iconBorder}`}
-                      >
-                        <ModalIcon className="w-5 h-5" />
-                      </div>
-                    );
-                  })()}
-                  <div>
-                    <h2
-                      id="channel-modal-title"
-                      className="text-base font-bold text-white"
-                    >
-                      Configure {activeChannel.name}
-                    </h2>
-                    <p className="text-xs text-neutral-400">
-                      API credentials &amp; automated order polling settings
-                    </p>
-                  </div>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() => setActiveChannelId(null)}
-                  aria-label="Close modal"
-                  className="p-2 rounded-xl text-neutral-400 hover:text-white hover:bg-neutral-800 transition-colors cursor-pointer"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-
-              {/* Modal Form */}
-              <form onSubmit={handleSaveModal} className="p-6 space-y-4">
-                {/* Store URL */}
-                <div>
-                  <label
-                    htmlFor="store-url-input"
-                    className="block text-xs font-semibold text-neutral-300 mb-1.5"
-                  >
-                    Storefront / Seller Endpoint URL
-                  </label>
-                  <div className="relative">
-                    <Link2 className="w-4 h-4 text-neutral-500 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-                    <input
-                      id="store-url-input"
-                      type="url"
-                      required
-                      value={formState.storeUrl}
-                      onChange={(e) =>
-                        setFormState((prev) => ({
-                          ...prev,
-                          storeUrl: e.target.value,
-                        }))
-                      }
-                      placeholder="https://your-store.myshopify.com"
-                      className="w-full pl-10 pr-4 py-2.5 text-xs sm:text-sm bg-neutral-950 border border-neutral-800 rounded-xl text-neutral-100 placeholder:text-neutral-600 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500/60"
-                    />
-                  </div>
-                </div>
-
-                {/* API Key */}
-                <div>
-                  <div className="flex items-center justify-between mb-1.5">
-                    <label
-                      htmlFor="api-key-input"
-                      className="block text-xs font-semibold text-neutral-300"
-                    >
-                      API Access Token / Client Key
-                    </label>
-                    <button
-                      type="button"
-                      onClick={() => setShowSecrets((prev) => !prev)}
-                      className="inline-flex items-center gap-1 text-[11px] text-neutral-400 hover:text-neutral-200 cursor-pointer"
-                    >
-                      {showSecrets ? (
-                        <>
-                          <EyeOff className="w-3 h-3" />
-                          <span>Hide secrets</span>
-                        </>
-                      ) : (
-                        <>
-                          <Eye className="w-3 h-3" />
-                          <span>Reveal secrets</span>
-                        </>
-                      )}
-                    </button>
-                  </div>
-                  <div className="relative">
-                    <KeyRound className="w-4 h-4 text-neutral-500 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-                    <input
-                      id="api-key-input"
-                      type={showSecrets ? "text" : "password"}
-                      required
-                      value={formState.apiKey}
-                      onChange={(e) =>
-                        setFormState((prev) => ({
-                          ...prev,
-                          apiKey: e.target.value,
-                        }))
-                      }
-                      placeholder="Enter marketplace API key or access token"
-                      className="w-full pl-10 pr-4 py-2.5 text-xs sm:text-sm font-mono bg-neutral-950 border border-neutral-800 rounded-xl text-neutral-100 placeholder:text-neutral-600 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500/60"
-                    />
-                  </div>
-                </div>
-
-                {/* Webhook Secret */}
-                <div>
-                  <label
-                    htmlFor="webhook-secret-input"
-                    className="block text-xs font-semibold text-neutral-300 mb-1.5"
-                  >
-                    Webhook Signing Secret
-                  </label>
-                  <div className="relative">
-                    <Webhook className="w-4 h-4 text-neutral-500 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-                    <input
-                      id="webhook-secret-input"
-                      type={showSecrets ? "text" : "password"}
-                      required
-                      value={formState.webhookSecret}
-                      onChange={(e) =>
-                        setFormState((prev) => ({
-                          ...prev,
-                          webhookSecret: e.target.value,
-                        }))
-                      }
-                      placeholder="whsec_..."
-                      className="w-full pl-10 pr-4 py-2.5 text-xs sm:text-sm font-mono bg-neutral-950 border border-neutral-800 rounded-xl text-neutral-100 placeholder:text-neutral-600 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500/60"
-                    />
-                  </div>
-                </div>
-
-                {/* Auto-Sync Interval */}
-                <div>
-                  <label
-                    htmlFor="sync-interval-select"
-                    className="block text-xs font-semibold text-neutral-300 mb-1.5"
-                  >
-                    Auto-Sync Polling Interval
-                  </label>
-                  <div className="relative">
-                    <Clock className="w-4 h-4 text-neutral-500 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-                    <select
-                      id="sync-interval-select"
-                      value={formState.autoSyncInterval}
-                      onChange={(e) =>
-                        setFormState((prev) => ({
-                          ...prev,
-                          autoSyncInterval: e.target.value as SyncInterval,
-                        }))
-                      }
-                      className="w-full pl-10 pr-4 py-2.5 text-xs sm:text-sm bg-neutral-950 border border-neutral-800 rounded-xl text-neutral-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500/60"
-                    >
-                      {SYNC_INTERVAL_OPTIONS.map((opt) => (
-                        <option key={opt.value} value={opt.value}>
-                          {opt.label}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-
-                {/* Modal Footer Actions */}
-                <div className="pt-4 border-t border-neutral-800 flex items-center justify-end gap-2.5">
-                  <button
-                    type="button"
-                    onClick={() => setActiveChannelId(null)}
-                    className="px-4 py-2 rounded-xl text-xs font-semibold text-neutral-300 hover:text-white hover:bg-neutral-800 transition-colors cursor-pointer"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={isSavingModal}
-                    className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold bg-emerald-500 hover:bg-emerald-400 text-neutral-950 transition-all shadow-sm shadow-emerald-500/20 disabled:opacity-60 cursor-pointer"
-                  >
-                    <RefreshCw
-                      className={`w-3.5 h-3.5 ${
-                        isSavingModal ? "animate-spin" : ""
-                      }`}
-                    />
-                    <span>
-                      {isSavingModal
-                        ? "Verifying & Saving..."
-                        : "Save & Connect Channel"}
-                    </span>
-                  </button>
-                </div>
-              </form>
-            </>
+        <div className="flex items-center gap-2 text-xs">
+          <span className="px-2.5 py-1 rounded-md bg-emerald-50 border border-emerald-200/80 text-emerald-800 font-medium">
+            {summary.connected} of {integrations.length} channels connected
+          </span>
+          {summary.errors > 0 && (
+            <span className="px-2.5 py-1 rounded-md bg-amber-50 border border-amber-200/80 text-amber-800 font-medium">
+              {summary.errors} error
+            </span>
           )}
         </div>
       </div>
+
+      {/* Integrations Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        {integrations.map((channel) => {
+          const visual = CHANNEL_VISUALS[channel.id];
+          const Icon = visual.icon;
+          const statusStyle = STATUS_STYLES[channel.status];
+          const isConnected = channel.status === "Connected";
+          const isSyncingCard = !!syncingIds[channel.id];
+
+          return (
+            <div
+              key={channel.id}
+              className="bg-white border border-slate-200/80 rounded-xl p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)] flex flex-col justify-between gap-4 hover:border-slate-300 transition-colors"
+            >
+              <div className="space-y-3">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center text-slate-700 shrink-0">
+                      <Icon className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h2 className="text-sm font-semibold text-slate-900">
+                        {channel.name}
+                      </h2>
+                      <span className="text-[11px] font-mono text-slate-400">
+                        {visual.tagLabel}
+                      </span>
+                    </div>
+                  </div>
+
+                  <Toggle
+                    checked={isConnected}
+                    onChange={() => handleToggleConnection(channel)}
+                    disabled={!permissions.canManageIntegrations}
+                    label={`Toggle ${channel.name} connection`}
+                  />
+                </div>
+
+                <p className="text-xs text-slate-500 leading-relaxed">
+                  {channel.subtitle}
+                </p>
+
+                <div className="pt-2 flex items-center justify-between text-xs">
+                  <span
+                    className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium border ${statusStyle.bg} ${statusStyle.text} ${statusStyle.border}`}
+                  >
+                    <span className={`w-1.5 h-1.5 rounded-full ${statusStyle.dot}`} />
+                    <span>{channel.status}</span>
+                  </span>
+
+                  <span className="text-[11px] text-slate-400">
+                    {channel.ordersSynced24h} orders / 24h
+                  </span>
+                </div>
+
+                {channel.errorMessage && (
+                  <p className="text-xs text-rose-700 bg-rose-50 border border-rose-200/60 rounded-md p-2">
+                    {channel.errorMessage}
+                  </p>
+                )}
+              </div>
+
+              <div className="pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
+                <button
+                  type="button"
+                  disabled={!isConnected || isSyncingCard}
+                  onClick={() => handleTriggerChannelSync(channel)}
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200/80 transition-colors disabled:opacity-40 cursor-pointer"
+                >
+                  <RefreshCw
+                    className={`w-3 h-3 ${isSyncingCard ? "animate-spin" : ""}`}
+                  />
+                  <span>{isSyncingCard ? "Syncing..." : "Sync Now"}</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleOpenConfigureModal(channel)}
+                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-colors cursor-pointer"
+                >
+                  <SlidersHorizontal className="w-3 h-3" />
+                  <span>Configure</span>
+                </button>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Configuration Modal */}
+      {activeChannel && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div
+            onClick={() => setActiveChannelId(null)}
+            className="fixed inset-0 bg-slate-900/30 backdrop-blur-xs transition-opacity"
+          />
+
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="channel-modal-title"
+            className="relative z-10 w-full max-w-lg rounded-xl bg-white border border-slate-200/80 shadow-2xl overflow-hidden"
+          >
+            <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+              <div>
+                <h2
+                  id="channel-modal-title"
+                  className="text-base font-semibold text-slate-900"
+                >
+                  Configure {activeChannel.name}
+                </h2>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Storefront endpoint and authentication credentials
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setActiveChannelId(null)}
+                aria-label="Close modal"
+                className="p-1 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveModal} className="p-6 space-y-4">
+              <div>
+                <label
+                  htmlFor="store-url-input"
+                  className="block text-xs font-medium text-slate-700 mb-1"
+                >
+                  Storefront URL / API Host
+                </label>
+                <div className="relative">
+                  <Link2 className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                  <input
+                    id="store-url-input"
+                    type="url"
+                    required
+                    value={formState.storeUrl}
+                    onChange={(e) =>
+                      setFormState((prev) => ({
+                        ...prev,
+                        storeUrl: e.target.value,
+                      }))
+                    }
+                    placeholder="https://your-store.myshopify.com"
+                    className="w-full pl-9 pr-3 py-2 text-xs sm:text-sm bg-slate-50 border border-slate-200/80 rounded-lg text-slate-900 placeholder:text-slate-400 focus:outline-none focus:bg-white focus:ring-1 focus:ring-slate-300"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label
+                    htmlFor="api-key-input"
+                    className="block text-xs font-medium text-slate-700"
+                  >
+                    API Access Token
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setShowSecrets((prev) => !prev)}
+                    className="inline-flex items-center gap-1 text-[11px] text-slate-500 hover:text-slate-700 cursor-pointer"
+                  >
+                    {showSecrets ? (
+                      <>
+                        <EyeOff className="w-3 h-3" />
+                        <span>Hide</span>
+                      </>
+                    ) : (
+                      <>
+                        <Eye className="w-3 h-3" />
+                        <span>Show</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+                <div className="relative">
+                  <KeyRound className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                  <input
+                    id="api-key-input"
+                    type={showSecrets ? "text" : "password"}
+                    required
+                    value={formState.apiKey}
+                    onChange={(e) =>
+                      setFormState((prev) => ({
+                        ...prev,
+                        apiKey: e.target.value,
+                      }))
+                    }
+                    placeholder="Enter access token"
+                    className="w-full pl-9 pr-3 py-2 text-xs sm:text-sm font-mono bg-slate-50 border border-slate-200/80 rounded-lg text-slate-900 placeholder:text-slate-400 focus:outline-none focus:bg-white focus:ring-1 focus:ring-slate-300"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label
+                  htmlFor="webhook-secret-input"
+                  className="block text-xs font-medium text-slate-700 mb-1"
+                >
+                  Webhook Signing Secret
+                </label>
+                <div className="relative">
+                  <Webhook className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                  <input
+                    id="webhook-secret-input"
+                    type={showSecrets ? "text" : "password"}
+                    required
+                    value={formState.webhookSecret}
+                    onChange={(e) =>
+                      setFormState((prev) => ({
+                        ...prev,
+                        webhookSecret: e.target.value,
+                      }))
+                    }
+                    placeholder="whsec_..."
+                    className="w-full pl-9 pr-3 py-2 text-xs sm:text-sm font-mono bg-slate-50 border border-slate-200/80 rounded-lg text-slate-900 placeholder:text-slate-400 focus:outline-none focus:bg-white focus:ring-1 focus:ring-slate-300"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label
+                  htmlFor="sync-interval-select"
+                  className="block text-xs font-medium text-slate-700 mb-1"
+                >
+                  Auto-Sync Interval
+                </label>
+                <select
+                  id="sync-interval-select"
+                  value={formState.autoSyncInterval}
+                  onChange={(e) =>
+                    setFormState((prev) => ({
+                      ...prev,
+                      autoSyncInterval: e.target.value as SyncInterval,
+                    }))
+                  }
+                  className="w-full px-3 py-2 text-xs sm:text-sm bg-slate-50 border border-slate-200/80 rounded-lg text-slate-900 focus:outline-none focus:bg-white focus:ring-1 focus:ring-slate-300"
+                >
+                  {SYNC_INTERVAL_OPTIONS.map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="pt-3 border-t border-slate-100 flex items-center justify-end gap-2.5">
+                <button
+                  type="button"
+                  onClick={() => setActiveChannelId(null)}
+                  className="px-3.5 py-1.5 rounded-lg text-xs font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-50 border border-slate-200/80 transition-colors cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSavingModal}
+                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-medium bg-slate-900 hover:bg-slate-800 text-white shadow-xs transition-colors disabled:opacity-60 cursor-pointer"
+                >
+                  <RefreshCw
+                    className={`w-3.5 h-3.5 ${
+                      isSavingModal ? "animate-spin" : ""
+                    }`}
+                  />
+                  <span>
+                    {isSavingModal ? "Saving..." : "Save Credentials"}
+                  </span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

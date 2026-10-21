@@ -18,13 +18,10 @@ import {
   Globe,
   CheckCircle2,
   Clock,
-  Sparkles,
-  Zap,
-  ShieldCheck,
-  ChevronRight,
   PackageCheck,
   Webhook,
   X,
+  ChevronRight,
 } from "lucide-react";
 
 export type TimeframeKey = "7D" | "30D" | "90D";
@@ -37,21 +34,11 @@ export interface ChannelPerformance {
   orders: number;
   aov: number;
   growthPct: number;
-  colorClass: string;
-  barGradient: string;
+  barColor: string;
   badgeBg: string;
   badgeText: string;
   badgeBorder: string;
   icon: React.ComponentType<{ className?: string }>;
-}
-
-export interface ActivityEvent {
-  id: string;
-  category: ActivityCategory;
-  title: string;
-  subtitle: string;
-  channel: ChannelName;
-  timestamp: string;
 }
 
 const TIMEFRAME_DATA: Record<
@@ -102,49 +89,39 @@ const TIMEFRAME_DATA: Record<
 const CHANNEL_STYLES: Record<
   ChannelName,
   {
-    colorClass: string;
-    barGradient: string;
+    barColor: string;
     badgeBg: string;
     badgeText: string;
     badgeBorder: string;
-    strokeColor: string;
     icon: React.ComponentType<{ className?: string }>;
   }
 > = {
   Shopify: {
-    colorClass: "text-emerald-400",
-    barGradient: "from-emerald-500 to-emerald-400",
-    badgeBg: "bg-emerald-500/10",
-    badgeText: "text-emerald-400",
-    badgeBorder: "border-emerald-500/25",
-    strokeColor: "#10b981",
+    barColor: "bg-emerald-500",
+    badgeBg: "bg-emerald-50",
+    badgeText: "text-emerald-700",
+    badgeBorder: "border-emerald-200/60",
     icon: Store,
   },
   Amazon: {
-    colorClass: "text-amber-400",
-    barGradient: "from-amber-500 to-amber-400",
-    badgeBg: "bg-amber-500/10",
-    badgeText: "text-amber-400",
-    badgeBorder: "border-amber-500/25",
-    strokeColor: "#f59e0b",
+    barColor: "bg-amber-500",
+    badgeBg: "bg-amber-50",
+    badgeText: "text-amber-700",
+    badgeBorder: "border-amber-200/60",
     icon: ShoppingCart,
   },
   Etsy: {
-    colorClass: "text-orange-400",
-    barGradient: "from-orange-500 to-orange-400",
-    badgeBg: "bg-orange-500/10",
-    badgeText: "text-orange-400",
-    badgeBorder: "border-orange-500/25",
-    strokeColor: "#f97316",
+    barColor: "bg-orange-500",
+    badgeBg: "bg-orange-50",
+    badgeText: "text-orange-700",
+    badgeBorder: "border-orange-200/60",
     icon: Globe,
   },
   eBay: {
-    colorClass: "text-sky-400",
-    barGradient: "from-sky-500 to-sky-400",
-    badgeBg: "bg-sky-500/10",
-    badgeText: "text-sky-400",
-    badgeBorder: "border-sky-500/25",
-    strokeColor: "#0ea5e9",
+    barColor: "bg-blue-500",
+    badgeBg: "bg-blue-50",
+    badgeText: "text-blue-700",
+    badgeBorder: "border-blue-200/60",
     icon: ShoppingBag,
   },
 };
@@ -163,10 +140,7 @@ export default function ExecutiveDashboardPage() {
   const [activityFilter, setActivityFilter] = useState<
     "all" | ActivityCategory
   >("all");
-
-  // Global Sync Simulation State
   const [isGlobalSyncing, setIsGlobalSyncing] = useState<boolean>(false);
-  const [lastGlobalSync, setLastGlobalSync] = useState<string>("2m ago");
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   const handleTriggerGlobalSync = () => {
@@ -175,25 +149,23 @@ export default function ExecutiveDashboardPage() {
 
     setTimeout(async () => {
       const synced = await triggerChannelOrdersSync();
-      setLastGlobalSync("Just now");
       setIsGlobalSyncing(false);
 
       setToastMessage(
-        `Global sync completed across Shopify, Amazon, Etsy & eBay (+${synced.length} new order${
-          synced.length === 1 ? "" : "s"
+        `Channel sync complete (+${synced.length} new ${
+          synced.length === 1 ? "order" : "orders"
         }).`
       );
       setTimeout(() => {
         setToastMessage(null);
-      }, 4500);
-    }, 1200);
+      }, 3500);
+    }, 1000);
   };
 
-  // Compute Channel Performance & Global GMV dynamically incorporating live shared orders, inventory & integrations
+  // Compute Channel Performance & Global GMV dynamically
   const dashboardStats = useMemo(() => {
     const tf = TIMEFRAME_DATA[timeframe];
 
-    // Live non-cancelled orders revenue & counts from shared OmniSyncContext
     const liveRevenueByChannel: Record<ChannelName, number> = {
       Shopify: 0,
       Amazon: 0,
@@ -295,94 +267,43 @@ export default function ExecutiveDashboardPage() {
   }, [activities, activityFilter]);
 
   return (
-    <div className="min-h-screen bg-neutral-950 text-neutral-100 flex flex-col pb-20">
-      {/* Top Executive Command Bar */}
-      <header className="sticky top-0 z-20 border-b border-neutral-800/80 bg-neutral-950/85 backdrop-blur-md">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3 min-w-0">
-            <span className="inline-flex items-center gap-1.5 text-xs font-medium text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1 rounded-lg">
-              <Sparkles className="w-3.5 h-3.5 shrink-0" />
-              <span className="truncate">Executive Command Center</span>
-            </span>
-            <span className="hidden md:inline-flex items-center gap-1.5 text-xs text-neutral-400">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              Last global sync: <strong className="text-neutral-200">{lastGlobalSync}</strong>
-            </span>
-          </div>
-
-          {/* Quick Header Shortcuts */}
-          <div className="flex items-center gap-2.5">
-            <Link
-              href="/orders"
-              className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium bg-neutral-900 hover:bg-neutral-800 text-neutral-200 border border-neutral-800 transition-colors"
-            >
-              <ShoppingBag className="w-3.5 h-3.5 text-emerald-400" />
-              <span>Orders Queue</span>
-            </Link>
-            <Link
-              href="/inventory"
-              className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium bg-neutral-900 hover:bg-neutral-800 text-neutral-200 border border-neutral-800 transition-colors"
-            >
-              <Boxes className="w-3.5 h-3.5 text-sky-400" />
-              <span>Inventory</span>
-            </Link>
-            <button
-              type="button"
-              onClick={handleTriggerGlobalSync}
-              disabled={isGlobalSyncing}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold bg-emerald-500 hover:bg-emerald-400 text-neutral-950 transition-all shadow-sm shadow-emerald-500/20 disabled:opacity-70 cursor-pointer"
-            >
-              <RefreshCw
-                className={`w-3.5 h-3.5 ${
-                  isGlobalSyncing ? "animate-spin" : ""
-                }`}
-              />
-              <span>
-                {isGlobalSyncing ? "Syncing All..." : "Trigger Global Sync"}
-              </span>
-            </button>
-          </div>
-        </div>
-      </header>
-
-      {/* Global Sync Toast Notification */}
+    <div className="space-y-6 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-entry">
+      {/* Toast Notification */}
       {toastMessage && (
         <div
           role="status"
           aria-live="polite"
-          className="fixed top-20 right-5 z-50 flex items-center gap-3 px-4 py-3 rounded-xl bg-neutral-900/95 border border-emerald-500/40 text-neutral-100 text-xs font-medium shadow-2xl backdrop-blur-md"
+          className="fixed top-20 right-5 z-50 flex items-center gap-3 px-4 py-3 rounded-xl bg-white border border-slate-200/90 text-slate-900 text-xs font-medium shadow-[0_10px_25px_-5px_rgba(15,23,42,0.12)] animate-entry"
         >
-          <div className="w-6 h-6 rounded-lg bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center shrink-0">
-            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+          <div className="w-6 h-6 rounded-lg bg-emerald-50 border border-emerald-200 flex items-center justify-center shrink-0">
+            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
           </div>
           <span>{toastMessage}</span>
           <button
             type="button"
             onClick={() => setToastMessage(null)}
             aria-label="Dismiss notification"
-            className="text-neutral-500 hover:text-neutral-200 transition-colors cursor-pointer"
+            className="text-slate-400 hover:text-slate-700 transition-colors cursor-pointer"
           >
             <X className="w-3.5 h-3.5" />
           </button>
         </div>
       )}
 
-      {/* Main Dashboard Content */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-        {/* Hero Heading + Timeframe Selector */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">
-              OmniSync Operations Overview
-            </h1>
-            <p className="text-sm text-neutral-400 mt-1">
-              Unified multi-channel GMV telemetry, storefront sync health, and
-              live fulfillment velocity.
-            </p>
-          </div>
+      {/* Page Header + Controls */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-xl font-semibold text-slate-900">
+            Operations Overview
+          </h1>
+          <p className="text-sm text-slate-500 mt-0.5">
+            Real-time fulfillment metrics, sales telemetry, and channel sync health.
+          </p>
+        </div>
 
-          {/* Timeframe Selector Pills */}
-          <div className="inline-flex items-center gap-1 bg-neutral-900/90 border border-neutral-800 p-1 rounded-xl self-start md:self-auto">
+        <div className="flex items-center gap-3 self-start sm:self-auto">
+          {/* Timeframe Selector */}
+          <div className="inline-flex items-center rounded-lg bg-slate-100 p-1 border border-slate-200/80">
             {(["7D", "30D", "90D"] as TimeframeKey[]).map((tf) => {
               const active = timeframe === tf;
               return (
@@ -390,10 +311,10 @@ export default function ExecutiveDashboardPage() {
                   key={tf}
                   type="button"
                   onClick={() => setTimeframe(tf)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                  className={`px-3 py-1 rounded-md text-xs font-medium transition-colors cursor-pointer ${
                     active
-                      ? "bg-emerald-500 text-neutral-950 shadow-2xs"
-                      : "text-neutral-400 hover:text-neutral-200"
+                      ? "bg-white text-slate-900 shadow-xs"
+                      : "text-slate-600 hover:text-slate-900"
                   }`}
                 >
                   {tf}
@@ -401,537 +322,429 @@ export default function ExecutiveDashboardPage() {
               );
             })}
           </div>
+
+          <button
+            type="button"
+            onClick={handleTriggerGlobalSync}
+            disabled={isGlobalSyncing}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-900 hover:bg-slate-800 text-white shadow-xs transition-colors disabled:opacity-60 cursor-pointer"
+          >
+            <RefreshCw
+              className={`w-3.5 h-3.5 ${
+                isGlobalSyncing ? "animate-spin" : ""
+              }`}
+            />
+            <span>{isGlobalSyncing ? "Syncing..." : "Sync Channels"}</span>
+          </button>
+        </div>
+      </div>
+
+      {/* 4 Single-Level Key Metric Cards */}
+      <section
+        aria-label="Key Metrics"
+        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
+      >
+        {/* 1. GMV */}
+        <div className="bg-white border border-slate-200/80 rounded-xl p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)] flex flex-col justify-between">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <p className="text-xs font-medium uppercase tracking-wider text-slate-500">
+                Gross Merchandise Value
+              </p>
+              <p className="text-2xl font-semibold text-slate-900 mt-2 tracking-tight">
+                $
+                {dashboardStats.totalGmv.toLocaleString("en-US", {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                })}
+              </p>
+            </div>
+            <div className="w-9 h-9 rounded-lg bg-slate-100 flex items-center justify-center text-slate-600 shrink-0">
+              <DollarSign className="w-4 h-4" />
+            </div>
+          </div>
+          <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+            <span className="inline-flex items-center gap-1 font-medium text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded">
+              <TrendingUp className="w-3 h-3" />
+              {dashboardStats.wowChange} WoW
+            </span>
+            <span className="text-slate-500">{dashboardStats.timeframeLabel}</span>
+          </div>
         </div>
 
-        {/* 4 Global Key Metric Cards */}
-        <section
-          aria-label="Global Executive Metrics"
-          className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4"
-        >
-          {/* 1. Gross Merchandise Value (GMV) */}
-          <div className="rounded-2xl bg-neutral-900/60 backdrop-blur-md border border-neutral-800/80 hover:border-emerald-500/30 transition-colors p-5 flex flex-col justify-between">
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <p className="text-xs font-medium uppercase tracking-wider text-neutral-400">
-                  Gross Merchandise Value
-                </p>
-                <p className="text-2xl sm:text-3xl font-bold text-white mt-2 tracking-tight">
-                  $
-                  {dashboardStats.totalGmv.toLocaleString("en-US", {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
-                  })}
-                </p>
-              </div>
-              <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/25 flex items-center justify-center text-emerald-400 shrink-0">
-                <DollarSign className="w-5 h-5" />
-              </div>
+        {/* 2. Active Channels */}
+        <div className="bg-white border border-slate-200/80 rounded-xl p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)] flex flex-col justify-between">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <p className="text-xs font-medium uppercase tracking-wider text-slate-500">
+                Active Storefronts
+              </p>
+              <p className="text-2xl font-semibold text-slate-900 mt-2 tracking-tight">
+                {dashboardStats.activeChannelsCount}{" "}
+                <span className="text-slate-400 text-lg font-normal">
+                  / {dashboardStats.totalChannelsCount}
+                </span>
+              </p>
             </div>
-
-            <div className="mt-4 pt-3 border-t border-neutral-800/70 flex items-center justify-between text-xs">
-              <span className="inline-flex items-center gap-1 font-semibold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full">
-                <TrendingUp className="w-3 h-3" />
-                {dashboardStats.wowChange} WoW
-              </span>
-              <span className="text-neutral-400">
-                {dashboardStats.timeframeLabel}
-              </span>
+            <div className="w-9 h-9 rounded-lg bg-slate-100 flex items-center justify-center text-slate-600 shrink-0">
+              <Radio className="w-4 h-4" />
             </div>
           </div>
-
-          {/* 2. Active Channels Online */}
-          <div className="rounded-2xl bg-neutral-900/60 backdrop-blur-md border border-neutral-800/80 hover:border-sky-500/30 transition-colors p-5 flex flex-col justify-between">
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <p className="text-xs font-medium uppercase tracking-wider text-neutral-400">
-                  Active Channels Online
-                </p>
-                <div className="flex items-baseline gap-2 mt-2">
-                  <p className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
-                    {dashboardStats.activeChannelsCount}{" "}
-                    <span className="text-neutral-500 text-xl">
-                      / {dashboardStats.totalChannelsCount}
-                    </span>
-                  </p>
-                  <span className="text-xs font-semibold text-emerald-400">
-                    Connected
-                  </span>
-                </div>
-              </div>
-              <div className="w-10 h-10 rounded-xl bg-sky-500/10 border border-sky-500/25 flex items-center justify-center text-sky-400 shrink-0">
-                <Radio className="w-5 h-5" />
-              </div>
-            </div>
-
-            <div className="mt-4 pt-3 border-t border-neutral-800/70 flex items-center justify-between text-xs">
-              <div className="flex items-center gap-1.5">
-                {integrations.map((ch) => (
-                  <span
-                    key={ch.id}
-                    className={`w-2 h-2 rounded-full ${
-                      ch.status === "Connected"
-                        ? "bg-emerald-400"
-                        : ch.status === "Sync Error"
-                        ? "bg-rose-400"
-                        : "bg-neutral-600"
-                    }`}
-                    title={`${ch.name}: ${ch.status}`}
-                  />
-                ))}
-              </div>
-              <Link
-                href="/integrations"
-                className="font-semibold text-sky-400 hover:text-sky-300 inline-flex items-center gap-0.5"
-              >
-                <span>Manage</span>
-                <ChevronRight className="w-3.5 h-3.5" />
-              </Link>
-            </div>
+          <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+            <span className="inline-flex items-center gap-1.5 text-slate-600">
+              <span className="w-2 h-2 rounded-full bg-emerald-500" />
+              All feeds live
+            </span>
+            <Link
+              href="/integrations"
+              className="text-slate-600 hover:text-slate-900 font-medium inline-flex items-center gap-0.5"
+            >
+              <span>Manage</span>
+              <ChevronRight className="w-3.5 h-3.5" />
+            </Link>
           </div>
+        </div>
 
-          {/* 3. Orders Today vs Unfulfilled Queue */}
-          <div className="rounded-2xl bg-neutral-900/60 backdrop-blur-md border border-neutral-800/80 hover:border-amber-500/30 transition-colors p-5 flex flex-col justify-between">
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <p className="text-xs font-medium uppercase tracking-wider text-neutral-400">
-                  Orders Today vs Queue
+        {/* 3. Orders Today */}
+        <div className="bg-white border border-slate-200/80 rounded-xl p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)] flex flex-col justify-between">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <p className="text-xs font-medium uppercase tracking-wider text-slate-500">
+                Orders Today
+              </p>
+              <div className="flex items-baseline gap-2 mt-2">
+                <p className="text-2xl font-semibold text-slate-900 tracking-tight">
+                  {dashboardStats.ordersToday}
                 </p>
-                <div className="flex items-baseline gap-2.5 mt-2">
-                  <p className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
-                    {dashboardStats.ordersToday}
-                  </p>
-                  <span className="text-xs font-semibold text-amber-300 bg-amber-500/15 border border-amber-500/30 px-2 py-0.5 rounded-full">
-                    {dashboardStats.unfulfilledQueue} unfulfilled
-                  </span>
-                </div>
-              </div>
-              <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/25 flex items-center justify-center text-amber-400 shrink-0">
-                <ShoppingBag className="w-5 h-5" />
-              </div>
-            </div>
-
-            <div className="mt-4 pt-3 border-t border-neutral-800/70 space-y-1.5">
-              <div className="flex items-center justify-between text-[11px] text-neutral-400">
-                <span>Fulfillment Velocity</span>
-                <span className="font-mono text-neutral-200">
-                  {dashboardStats.fulfillmentPct}%
+                <span className="text-xs font-medium text-amber-700 bg-amber-50 px-2 py-0.5 rounded">
+                  {dashboardStats.unfulfilledQueue} pending
                 </span>
               </div>
-              <div className="w-full h-1.5 rounded-full bg-neutral-800 overflow-hidden">
-                <div
-                  style={{ width: `${dashboardStats.fulfillmentPct}%` }}
-                  className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-amber-400 transition-all duration-500"
-                />
-              </div>
+            </div>
+            <div className="w-9 h-9 rounded-lg bg-slate-100 flex items-center justify-center text-slate-600 shrink-0">
+              <ShoppingBag className="w-4 h-4" />
             </div>
           </div>
+          <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+            <span>Fulfillment rate:</span>
+            <span className="font-medium text-slate-900">
+              {dashboardStats.fulfillmentPct}%
+            </span>
+          </div>
+        </div>
 
-          {/* 4. Sync Health Score & Inventory Pool */}
-          <div className="rounded-2xl bg-neutral-900/60 backdrop-blur-md border border-neutral-800/80 hover:border-emerald-500/30 transition-colors p-5 flex flex-col justify-between">
-            <div className="flex items-start justify-between gap-3">
+        {/* 4. Stock Units */}
+        <div className="bg-white border border-slate-200/80 rounded-xl p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)] flex flex-col justify-between">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <p className="text-xs font-medium uppercase tracking-wider text-slate-500">
+                Total Inventory Units
+              </p>
+              <p className="text-2xl font-semibold text-slate-900 mt-2 tracking-tight">
+                {dashboardStats.totalStockUnits.toLocaleString()}
+              </p>
+            </div>
+            <div className="w-9 h-9 rounded-lg bg-slate-100 flex items-center justify-center text-slate-600 shrink-0">
+              <Boxes className="w-4 h-4" />
+            </div>
+          </div>
+          <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+            <span className="text-slate-500">Threshold: &lt; {settings.lowStockThreshold}u</span>
+            <Link
+              href="/inventory"
+              className="text-amber-700 font-medium hover:underline"
+            >
+              {dashboardStats.lowStockSkus} low stock
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Main Two-Column Layout */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        {/* Left 7 Columns: Channel Revenue Distribution */}
+        <section className="lg:col-span-7 bg-white border border-slate-200/80 rounded-xl p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)] flex flex-col justify-between space-y-5">
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs font-medium uppercase tracking-wider text-neutral-400">
-                  Sync Health Score
+                <h2 className="text-base font-semibold text-slate-900">
+                  Channel Revenue Distribution
+                </h2>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Comparative volume and share ({dashboardStats.timeframeLabel})
                 </p>
-                <div className="flex items-baseline gap-2 mt-2">
-                  <p className="text-2xl sm:text-3xl font-bold text-emerald-400 tracking-tight">
-                    99.8%
-                  </p>
-                  <span className="text-xs font-medium text-neutral-400">
-                    uptime
-                  </span>
-                </div>
               </div>
-              <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/25 flex items-center justify-center text-emerald-400 shrink-0">
-                <Activity className="w-5 h-5" />
-              </div>
-            </div>
-
-            <div className="mt-4 pt-3 border-t border-neutral-800/70 flex items-center justify-between text-xs">
-              <span className="inline-flex items-center gap-1.5 text-neutral-400">
-                <Zap className="w-3.5 h-3.5 text-emerald-400" />
-                Stock pool:{" "}
-                <strong className="text-neutral-200 font-mono">
-                  {dashboardStats.totalStockUnits}u
-                </strong>
+              <span className="text-xs font-medium text-slate-500 bg-slate-100 px-2.5 py-1 rounded-md">
+                {dashboardStats.totalOrdersInPeriod.toLocaleString()} orders
               </span>
-              <Link
-                href="/inventory"
-                className="text-emerald-400 hover:text-emerald-300 font-semibold"
-              >
-                {dashboardStats.lowStockSkus} Low Stock
-              </Link>
             </div>
-          </div>
-        </section>
 
-        {/* Main Two-Column Analytical Section: Revenue Distribution Chart + Recent Activity Feed */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          {/* Left 7 Cols: Multi-Channel Revenue Distribution Chart */}
-          <section className="lg:col-span-7 rounded-2xl bg-neutral-900/75 backdrop-blur-md border border-neutral-800 p-6 flex flex-col justify-between space-y-6">
-            <div className="space-y-4">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                <div>
-                  <h2 className="text-base sm:text-lg font-bold text-white">
-                    Multi-Channel Revenue Distribution
-                  </h2>
-                  <p className="text-xs text-neutral-400">
-                    Comparative sales volume, order share &amp; AOV across
-                    Shopify, Amazon, Etsy, and eBay ({dashboardStats.timeframeLabel})
-                  </p>
-                </div>
-                <span className="text-xs font-mono text-neutral-400 bg-neutral-950 border border-neutral-800 px-2.5 py-1 rounded-lg self-start sm:self-auto">
-                  {dashboardStats.totalOrdersInPeriod.toLocaleString()} orders
-                </span>
-              </div>
-
-              {/* Stacked Proportional Multi-Channel Ribbon Bar */}
-              <div className="space-y-2 pt-1">
-                <div className="w-full h-3.5 rounded-full bg-neutral-950 border border-neutral-800 overflow-hidden flex p-0.5 gap-0.5">
-                  {dashboardStats.channels.map((ch) => {
-                    const sharePct =
-                      dashboardStats.totalGmv > 0
-                        ? (ch.revenue / dashboardStats.totalGmv) * 100
-                        : 25;
-                    return (
-                      <div
-                        key={ch.channel}
-                        style={{ width: `${sharePct}%` }}
-                        title={`${ch.channel}: ${sharePct.toFixed(1)}%`}
-                        className={`h-full first:rounded-l-full last:rounded-r-full bg-gradient-to-r ${ch.barGradient} transition-all duration-500`}
-                      />
-                    );
-                  })}
-                </div>
-                <div className="flex flex-wrap items-center justify-between gap-2 text-[11px] text-neutral-400">
-                  {dashboardStats.channels.map((ch) => {
-                    const sharePct =
-                      dashboardStats.totalGmv > 0
-                        ? (ch.revenue / dashboardStats.totalGmv) * 100
-                        : 0;
-                    return (
-                      <span
-                        key={ch.channel}
-                        className="inline-flex items-center gap-1.5"
-                      >
-                        <span
-                          className={`w-2 h-2 rounded-full bg-gradient-to-r ${ch.barGradient}`}
-                        />
-                        <span className="font-medium text-neutral-300">
-                          {ch.channel}
-                        </span>
-                        <span className="font-mono text-neutral-500">
-                          ({sharePct.toFixed(1)}%)
-                        </span>
-                      </span>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Detailed Per-Channel Horizontal Bar Breakdown */}
-              <div className="space-y-4 pt-2">
+            {/* Stacked Proportional Bar */}
+            <div className="space-y-2">
+              <div className="w-full h-2 rounded-full bg-slate-100 overflow-hidden flex">
                 {dashboardStats.channels.map((ch) => {
-                  const Icon = ch.icon;
-                  const widthPct = Math.max(
-                    8,
-                    Math.round(
-                      (ch.revenue / dashboardStats.maxChannelRevenue) * 100
-                    )
-                  );
                   const sharePct =
                     dashboardStats.totalGmv > 0
-                      ? ((ch.revenue / dashboardStats.totalGmv) * 100).toFixed(
-                          1
-                        )
-                      : "0.0";
-
+                      ? (ch.revenue / dashboardStats.totalGmv) * 100
+                      : 25;
                   return (
                     <div
                       key={ch.channel}
-                      className="rounded-xl bg-neutral-950/70 border border-neutral-800/80 p-4 space-y-2.5 hover:border-neutral-700/80 transition-colors"
-                    >
-                      <div className="flex items-center justify-between gap-3">
-                        <div className="flex items-center gap-3">
-                          <div
-                            className={`w-9 h-9 rounded-xl border flex items-center justify-center ${ch.badgeBg} ${ch.badgeText} ${ch.badgeBorder}`}
-                          >
-                            <Icon className="w-4 h-4" />
-                          </div>
-                          <div>
-                            <div className="flex items-center gap-2">
-                              <span className="text-sm font-bold text-white">
-                                {ch.channel}
-                              </span>
-                              <span className="text-[11px] font-semibold text-emerald-400 bg-emerald-500/10 px-1.5 py-0.2 rounded">
-                                +{ch.growthPct}%
-                              </span>
-                            </div>
-                            <p className="text-xs text-neutral-500">
-                              {ch.orders.toLocaleString()} orders • AOV $
-                              {ch.aov.toFixed(2)}
-                            </p>
-                          </div>
-                        </div>
-
-                        <div className="text-right">
-                          <p className="text-sm sm:text-base font-bold font-mono text-white">
-                            $
-                            {ch.revenue.toLocaleString("en-US", {
-                              minimumFractionDigits: 2,
-                              maximumFractionDigits: 2,
-                            })}
-                          </p>
-                          <p className="text-[11px] text-neutral-500">
-                            {sharePct}% of total GMV
-                          </p>
-                        </div>
-                      </div>
-
-                      {/* Animated Revenue Bar */}
-                      <div className="w-full h-2 rounded-full bg-neutral-900 overflow-hidden">
-                        <div
-                          style={{ width: `${widthPct}%` }}
-                          className={`h-full rounded-full bg-gradient-to-r ${ch.barGradient} transition-all duration-500`}
-                        />
-                      </div>
+                      style={{ width: `${sharePct}%` }}
+                      title={`${ch.channel}: ${sharePct.toFixed(1)}%`}
+                      className={`h-full ${ch.barColor}`}
+                    />
+                  );
+                })}
+              </div>
+              <div className="flex flex-wrap items-center gap-4 text-xs text-slate-600">
+                {dashboardStats.channels.map((ch) => {
+                  const sharePct =
+                    dashboardStats.totalGmv > 0
+                      ? (ch.revenue / dashboardStats.totalGmv) * 100
+                      : 0;
+                  return (
+                    <div key={ch.channel} className="flex items-center gap-1.5">
+                      <span className={`w-2 h-2 rounded-full ${ch.barColor}`} />
+                      <span className="font-medium text-slate-700">{ch.channel}</span>
+                      <span className="text-slate-400">({sharePct.toFixed(1)}%)</span>
                     </div>
                   );
                 })}
               </div>
             </div>
 
-            {/* Bottom Summary Strip */}
-            <div className="pt-4 border-t border-neutral-800/80 flex flex-wrap items-center justify-between gap-3 text-xs text-neutral-400">
-              <span className="inline-flex items-center gap-1.5">
-                <ShieldCheck className="w-4 h-4 text-emerald-400" />
-                Settlement ledger automatically reconciled across 4 active
-                storefronts.
-              </span>
-              <Link
-                href="/orders"
-                className="font-semibold text-emerald-400 hover:text-emerald-300 inline-flex items-center gap-1"
-              >
-                <span>Inspect All Orders</span>
-                <ArrowUpRight className="w-3.5 h-3.5" />
-              </Link>
-            </div>
-          </section>
+            {/* Per-Channel List */}
+            <div className="space-y-3 pt-2">
+              {dashboardStats.channels.map((ch) => {
+                const Icon = ch.icon;
+                const sharePct =
+                  dashboardStats.totalGmv > 0
+                    ? ((ch.revenue / dashboardStats.totalGmv) * 100).toFixed(1)
+                    : "0.0";
 
-          {/* Right 5 Cols: Real-Time Recent Activity Feed */}
-          <section className="lg:col-span-5 rounded-2xl bg-neutral-900/75 backdrop-blur-md border border-neutral-800 p-6 flex flex-col justify-between space-y-5">
-            <div className="space-y-4">
-              <div className="flex items-center justify-between gap-2">
-                <div>
-                  <div className="flex items-center gap-2">
-                    <h2 className="text-base sm:text-lg font-bold text-white">
-                      Real-Time Activity Feed
-                    </h2>
-                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
-                  </div>
-                  <p className="text-xs text-neutral-400">
-                    Live order ingest, stock pushes &amp; webhook events
-                  </p>
-                </div>
-              </div>
-
-              {/* Activity Category Filter Tabs */}
-              <div className="flex items-center gap-1 bg-neutral-950 border border-neutral-800 p-1 rounded-xl">
-                {(
-                  [
-                    { key: "all", label: "All Events" },
-                    { key: "order", label: "Orders" },
-                    { key: "inventory", label: "Stock" },
-                    { key: "webhook", label: "Webhooks" },
-                  ] as const
-                ).map((tab) => {
-                  const active = activityFilter === tab.key;
-                  return (
-                    <button
-                      key={tab.key}
-                      type="button"
-                      onClick={() => setActivityFilter(tab.key)}
-                      className={`flex-1 py-1.5 px-2 rounded-lg text-xs font-medium transition-colors cursor-pointer ${
-                        active
-                          ? "bg-neutral-800 text-white shadow-2xs"
-                          : "text-neutral-400 hover:text-neutral-200"
-                      }`}
-                    >
-                      {tab.label}
-                    </button>
-                  );
-                })}
-              </div>
-
-              {/* Feed Timeline List */}
-              <div className="space-y-3 max-h-[420px] overflow-y-auto pr-1">
-                {filteredActivities.map((evt) => {
-                  const chStyle = CHANNEL_STYLES[evt.channel];
-                  const EventIcon =
-                    evt.category === "order"
-                      ? ShoppingBag
-                      : evt.category === "inventory"
-                        ? PackageCheck
-                        : Webhook;
-
-                  return (
-                    <div
-                      key={evt.id}
-                      className="rounded-xl bg-neutral-950/80 border border-neutral-800/80 p-3.5 flex items-start gap-3 hover:border-neutral-700 transition-colors"
-                    >
+                return (
+                  <div
+                    key={ch.channel}
+                    className="rounded-lg bg-slate-50/80 border border-slate-200/60 p-3.5 flex items-center justify-between gap-3"
+                  >
+                    <div className="flex items-center gap-3 min-w-0">
                       <div
-                        className={`w-8 h-8 rounded-lg border flex items-center justify-center shrink-0 mt-0.5 ${chStyle.badgeBg} ${chStyle.badgeText} ${chStyle.badgeBorder}`}
+                        className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${ch.badgeBg} ${ch.badgeText}`}
                       >
-                        <EventIcon className="w-4 h-4" />
+                        <Icon className="w-4 h-4" />
                       </div>
-
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between gap-2">
-                          <p className="text-xs sm:text-sm font-semibold text-neutral-100 truncate">
-                            {evt.title}
-                          </p>
-                          <span className="text-[11px] text-neutral-500 whitespace-nowrap inline-flex items-center gap-1">
-                            <Clock className="w-3 h-3" />
-                            {evt.timestamp}
+                      <div className="truncate">
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-medium text-slate-900">
+                            {ch.channel}
+                          </span>
+                          <span className="text-[11px] font-medium text-emerald-700 bg-emerald-50 px-1.5 py-0.2 rounded">
+                            +{ch.growthPct}%
                           </span>
                         </div>
-                        <p className="text-xs text-neutral-400 mt-0.5 line-clamp-1">
-                          {evt.subtitle}
+                        <p className="text-xs text-slate-500 mt-0.5">
+                          {ch.orders.toLocaleString()} orders • AOV ${ch.aov.toFixed(2)}
                         </p>
-                        <div className="mt-1.5 flex items-center gap-2">
-                          <span
-                            className={`inline-flex items-center px-2 py-0.2 rounded text-[10px] font-semibold border ${chStyle.badgeBg} ${chStyle.badgeText} ${chStyle.badgeBorder}`}
-                          >
-                            {evt.channel}
-                          </span>
-                          <span className="text-[10px] uppercase tracking-wider text-neutral-500 font-mono">
-                            {evt.category}
-                          </span>
-                        </div>
                       </div>
                     </div>
-                  );
-                })}
-              </div>
-            </div>
 
-            <div className="pt-3 border-t border-neutral-800/80 flex items-center justify-between text-xs text-neutral-400">
-              <span>Showing latest {filteredActivities.length} events</span>
-              <button
-                type="button"
-                onClick={handleTriggerGlobalSync}
-                disabled={isGlobalSyncing}
-                className="font-semibold text-emerald-400 hover:text-emerald-300 inline-flex items-center gap-1 cursor-pointer disabled:opacity-50"
-              >
-                <RefreshCw
-                  className={`w-3 h-3 ${isGlobalSyncing ? "animate-spin" : ""}`}
-                />
-                <span>Poll New Events</span>
-              </button>
+                    <div className="text-right shrink-0">
+                      <p className="text-sm font-semibold text-slate-900">
+                        $
+                        {ch.revenue.toLocaleString("en-US", {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        })}
+                      </p>
+                      <p className="text-[11px] text-slate-500">
+                        {sharePct}% of GMV
+                      </p>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
-          </section>
-        </div>
+          </div>
 
-        {/* Quick Navigation & Action Shortcuts */}
-        <section aria-label="Quick Navigation and Action Shortcuts">
-          <h2 className="text-xs font-semibold uppercase tracking-wider text-neutral-400 mb-3">
-            Quick Navigation &amp; Action Shortcuts
-          </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {/* Shortcut 1: Orders Queue */}
+          <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+            <span>Settlement ledger reconciled across channels</span>
             <Link
               href="/orders"
-              className="group rounded-2xl bg-neutral-900/60 hover:bg-neutral-900 border border-neutral-800 hover:border-emerald-500/40 p-4 flex items-center justify-between transition-all"
+              className="font-medium text-slate-900 hover:text-slate-700 inline-flex items-center gap-1"
             >
-              <div className="flex items-center gap-3.5">
-                <div className="w-10 h-10 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
-                  <ShoppingBag className="w-5 h-5" />
-                </div>
-                <div>
-                  <p className="text-sm font-bold text-white group-hover:text-emerald-300 transition-colors">
-                    Orders Queue
-                  </p>
-                  <p className="text-xs text-neutral-400">
-                    Inspect, batch ship &amp; export CSV
-                  </p>
-                </div>
-              </div>
-              <ArrowUpRight className="w-4 h-4 text-neutral-500 group-hover:text-emerald-400 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+              <span>View all orders</span>
+              <ArrowUpRight className="w-3.5 h-3.5" />
             </Link>
+          </div>
+        </section>
 
-            {/* Shortcut 2: Inventory & Stock Sync */}
-            <Link
-              href="/inventory"
-              className="group rounded-2xl bg-neutral-900/60 hover:bg-neutral-900 border border-neutral-800 hover:border-sky-500/40 p-4 flex items-center justify-between transition-all"
-            >
-              <div className="flex items-center gap-3.5">
-                <div className="w-10 h-10 rounded-xl bg-sky-500/15 border border-sky-500/30 flex items-center justify-center text-sky-400">
-                  <Boxes className="w-5 h-5" />
-                </div>
-                <div>
-                  <p className="text-sm font-bold text-white group-hover:text-sky-300 transition-colors">
-                    Inventory &amp; Stock
-                  </p>
-                  <p className="text-xs text-neutral-400">
-                    Adjust SKUs &amp; channel allocations
-                  </p>
-                </div>
+        {/* Right 5 Columns: Activity Feed */}
+        <section className="lg:col-span-5 bg-white border border-slate-200/80 rounded-xl p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)] flex flex-col justify-between space-y-4">
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-base font-semibold text-slate-900">
+                  Activity Feed
+                </h2>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Recent sync events and orders
+                </p>
               </div>
-              <ArrowUpRight className="w-4 h-4 text-neutral-500 group-hover:text-sky-400 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
-            </Link>
+            </div>
 
-            {/* Shortcut 3: Marketplace Integrations */}
-            <Link
-              href="/integrations"
-              className="group rounded-2xl bg-neutral-900/60 hover:bg-neutral-900 border border-neutral-800 hover:border-amber-500/40 p-4 flex items-center justify-between transition-all"
-            >
-              <div className="flex items-center gap-3.5">
-                <div className="w-10 h-10 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400">
-                  <Blocks className="w-5 h-5" />
-                </div>
-                <div>
-                  <p className="text-sm font-bold text-white group-hover:text-amber-300 transition-colors">
-                    Channel Connect
-                  </p>
-                  <p className="text-xs text-neutral-400">
-                    Manage API keys &amp; sync intervals
-                  </p>
-                </div>
-              </div>
-              <ArrowUpRight className="w-4 h-4 text-neutral-500 group-hover:text-amber-400 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
-            </Link>
+            {/* Filter Tabs */}
+            <div className="flex items-center gap-1 bg-slate-100 p-0.5 rounded-lg border border-slate-200/80">
+              {(
+                [
+                  { key: "all", label: "All" },
+                  { key: "order", label: "Orders" },
+                  { key: "inventory", label: "Stock" },
+                  { key: "webhook", label: "Webhooks" },
+                ] as const
+              ).map((tab) => {
+                const active = activityFilter === tab.key;
+                return (
+                  <button
+                    key={tab.key}
+                    type="button"
+                    onClick={() => setActivityFilter(tab.key)}
+                    className={`flex-1 py-1 px-2 rounded-md text-xs font-medium transition-colors cursor-pointer ${
+                      active
+                        ? "bg-white text-slate-900 shadow-xs"
+                        : "text-slate-600 hover:text-slate-900"
+                    }`}
+                  >
+                    {tab.label}
+                  </button>
+                );
+              })}
+            </div>
 
-            {/* Shortcut 4: Global Sync Trigger */}
+            {/* Activity Items */}
+            <div className="divide-y divide-slate-100 max-h-[380px] overflow-y-auto">
+              {filteredActivities.map((evt) => {
+                const EventIcon =
+                  evt.category === "order"
+                    ? ShoppingBag
+                    : evt.category === "inventory"
+                    ? PackageCheck
+                    : Webhook;
+
+                return (
+                  <div key={evt.id} className="py-3 flex items-start gap-3 first:pt-0 last:pb-0">
+                    <div className="w-7 h-7 rounded-md bg-slate-100 flex items-center justify-center shrink-0 mt-0.5 text-slate-600">
+                      <EventIcon className="w-3.5 h-3.5" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between gap-2">
+                        <p className="text-xs font-medium text-slate-900 truncate">
+                          {evt.title}
+                        </p>
+                        <span className="text-[11px] text-slate-400 shrink-0">
+                          {evt.timestamp}
+                        </span>
+                      </div>
+                      <p className="text-xs text-slate-500 mt-0.5 truncate">
+                        {evt.subtitle}
+                      </p>
+                      <div className="mt-1 flex items-center gap-1.5">
+                        <span className="text-[10px] font-medium text-slate-600 bg-slate-100 px-1.5 py-0.2 rounded">
+                          {evt.channel}
+                        </span>
+                        <span className="text-[10px] uppercase text-slate-400 font-mono">
+                          {evt.category}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+            <span>Showing {filteredActivities.length} recent events</span>
             <button
               type="button"
               onClick={handleTriggerGlobalSync}
               disabled={isGlobalSyncing}
-              className="group rounded-2xl bg-emerald-500/10 hover:bg-emerald-500/15 border border-emerald-500/30 hover:border-emerald-500/50 p-4 flex items-center justify-between text-left transition-all cursor-pointer disabled:opacity-60"
+              className="text-slate-900 font-medium hover:text-slate-700 cursor-pointer disabled:opacity-50"
             >
-              <div className="flex items-center gap-3.5">
-                <div className="w-10 h-10 rounded-xl bg-emerald-500 text-neutral-950 flex items-center justify-center shadow-sm shadow-emerald-500/30">
-                  <RefreshCw
-                    className={`w-5 h-5 ${
-                      isGlobalSyncing ? "animate-spin" : ""
-                    }`}
-                  />
-                </div>
-                <div>
-                  <p className="text-sm font-bold text-emerald-300">
-                    {isGlobalSyncing
-                      ? "Syncing Channels..."
-                      : "Trigger Global Sync"}
-                  </p>
-                  <p className="text-xs text-emerald-400/80">
-                    Force poll all 4 online storefronts
-                  </p>
-                </div>
-              </div>
-              <Zap className="w-4 h-4 text-emerald-400" />
+              Refresh
             </button>
           </div>
         </section>
-      </main>
+      </div>
+
+      {/* Quick Navigation Shortcuts */}
+      <section aria-label="Shortcuts">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <Link
+            href="/orders"
+            className="group rounded-xl bg-white hover:bg-slate-50/80 border border-slate-200/80 p-4 flex items-center justify-between transition-colors shadow-[0_1px_3px_rgba(0,0,0,0.04)]"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-lg bg-slate-100 flex items-center justify-center text-slate-700">
+                <ShoppingBag className="w-4 h-4" />
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-slate-900">Orders</p>
+                <p className="text-xs text-slate-500">Fulfillment &amp; dispatch</p>
+              </div>
+            </div>
+            <ArrowUpRight className="w-4 h-4 text-slate-400 group-hover:text-slate-700 transition-colors" />
+          </Link>
+
+          <Link
+            href="/inventory"
+            className="group rounded-xl bg-white hover:bg-slate-50/80 border border-slate-200/80 p-4 flex items-center justify-between transition-colors shadow-[0_1px_3px_rgba(0,0,0,0.04)]"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-lg bg-slate-100 flex items-center justify-center text-slate-700">
+                <Boxes className="w-4 h-4" />
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-slate-900">Inventory</p>
+                <p className="text-xs text-slate-500">Stock &amp; allocations</p>
+              </div>
+            </div>
+            <ArrowUpRight className="w-4 h-4 text-slate-400 group-hover:text-slate-700 transition-colors" />
+          </Link>
+
+          <Link
+            href="/integrations"
+            className="group rounded-xl bg-white hover:bg-slate-50/80 border border-slate-200/80 p-4 flex items-center justify-between transition-colors shadow-[0_1px_3px_rgba(0,0,0,0.04)]"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-lg bg-slate-100 flex items-center justify-center text-slate-700">
+                <Blocks className="w-4 h-4" />
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-slate-900">Integrations</p>
+                <p className="text-xs text-slate-500">Marketplaces &amp; webhooks</p>
+              </div>
+            </div>
+            <ArrowUpRight className="w-4 h-4 text-slate-400 group-hover:text-slate-700 transition-colors" />
+          </Link>
+
+          <Link
+            href="/settings"
+            className="group rounded-xl bg-white hover:bg-slate-50/80 border border-slate-200/80 p-4 flex items-center justify-between transition-colors shadow-[0_1px_3px_rgba(0,0,0,0.04)]"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-lg bg-slate-100 flex items-center justify-center text-slate-700">
+                <Activity className="w-4 h-4" />
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-slate-900">Settings</p>
+                <p className="text-xs text-slate-500">Rules &amp; preferences</p>
+              </div>
+            </div>
+            <ArrowUpRight className="w-4 h-4 text-slate-400 group-hover:text-slate-700 transition-colors" />
+          </Link>
+        </div>
+      </section>
     </div>
   );
 }

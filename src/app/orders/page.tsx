@@ -162,35 +162,35 @@ const STATUS_BADGES: Record<
   }
 > = {
   Pending: {
-    humanLabel: "Awaiting WhatsApp Confirmation",
-    bg: "bg-[#FFFBEB]",
-    text: "text-[#92400E]",
-    border: "border-[#FEF3C7]",
-    dot: "bg-amber-500",
+    humanLabel: "Pending Confirmation",
+    bg: "bg-amber-50",
+    text: "text-amber-800",
+    border: "border-amber-200/60",
+    dot: "bg-amber-600",
     icon: Clock,
   },
   Shipped: {
-    humanLabel: "Dispatched via Courier",
-    bg: "bg-[#EFF6FF]",
-    text: "text-[#1E40AF]",
-    border: "border-[#DBEAFE]",
+    humanLabel: "Dispatched",
+    bg: "bg-blue-50",
+    text: "text-blue-800",
+    border: "border-blue-200/60",
     dot: "bg-blue-600",
     icon: Truck,
   },
   Delivered: {
-    humanLabel: "COD Delivered & Settled",
-    bg: "bg-[#F0FDF4]",
-    text: "text-[#166534]",
-    border: "border-[#DCFCE7]",
-    dot: "bg-[#16A34A]",
+    humanLabel: "Delivered",
+    bg: "bg-emerald-50",
+    text: "text-emerald-800",
+    border: "border-emerald-200/60",
+    dot: "bg-emerald-600",
     icon: CheckCircle2,
   },
   Cancelled: {
-    humanLabel: "Returned / RTO",
-    bg: "bg-[#FEF2F2]",
-    text: "text-[#991B1B]",
-    border: "border-[#FEE2E2]",
-    dot: "bg-[#DC2626]",
+    humanLabel: "Cancelled / RTO",
+    bg: "bg-slate-100",
+    text: "text-slate-700",
+    border: "border-slate-200/60",
+    dot: "bg-slate-500",
     icon: XCircle,
   },
 };
@@ -784,97 +784,15 @@ export default function OrdersPage() {
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] text-[#0F172A] flex flex-col pb-24">
-      {/* Page Top Header Bar */}
-      <header className="sticky top-0 z-20 border-b border-slate-200/80 bg-white/85 backdrop-blur-md shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3 min-w-0">
-            <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#166534] bg-[#F0FDF4] border border-[#DCFCE7] px-2.5 py-1 rounded-lg">
-              <Sparkles className="w-3.5 h-3.5 text-[#16A34A] shrink-0" />
-              <span className="truncate">D2C COD Dispatch Queue</span>
-            </div>
-            <span className="hidden md:inline-flex items-center gap-2 text-[11px] font-medium text-slate-600 bg-slate-50 border border-slate-200/80 px-2.5 py-1 rounded-lg">
-              <span className="relative flex h-2 w-2">
-                <span
-                  className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${
-                    sseConnected ? "bg-emerald-400" : "bg-amber-400"
-                  }`}
-                />
-                <span
-                  className={`relative inline-flex rounded-full h-2 w-2 ${
-                    sseConnected ? "bg-[#16A34A]" : "bg-amber-500"
-                  }`}
-                />
-              </span>
-              Live Order Feed: {sseConnected ? "Connected" : "Reconnecting"}
-            </span>
-            <span className="hidden sm:inline text-xs text-slate-500">
-              Showing{" "}
-              <strong className="text-slate-900 font-semibold">
-                {filteredOrders.length}
-              </strong>{" "}
-              of{" "}
-              <strong className="text-slate-900 font-semibold">
-                {orders.length}
-              </strong>{" "}
-              parcels
-            </span>
-          </div>
-
-          <div className="flex items-center gap-2.5">
-            <button
-              type="button"
-              onClick={handleSimulateWebhookOrder}
-              disabled={isSimulatingWebhook}
-              title="Simulate a new incoming Pakistani COD order over SSE"
-              className="hidden sm:inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold bg-indigo-50 hover:bg-indigo-100/80 text-indigo-700 border border-indigo-200/60 active:scale-[0.98] transition-all duration-100 ease-in-out focus-visible:ring-2 focus-visible:ring-slate-900/10 focus-visible:outline-none cursor-pointer disabled:opacity-60"
-            >
-              <Radio
-                className={`w-3.5 h-3.5 ${
-                  isSimulatingWebhook ? "animate-ping" : ""
-                }`}
-              />
-              <span>
-                {isSimulatingWebhook
-                  ? "Receiving Order..."
-                  : "Simulate New COD Order"}
-              </span>
-            </button>
-
-            <span className="hidden lg:inline-flex items-center gap-1.5 text-xs text-slate-600 bg-slate-50 border border-slate-200/80 px-3 py-1.5 rounded-full">
-              <span
-                className={`w-2 h-2 rounded-full ${
-                  isSyncing
-                    ? "bg-amber-500 animate-ping"
-                    : "bg-[#16A34A] animate-pulse"
-                }`}
-              />
-              Last synced: {lastSyncedAt}
-            </span>
-
-            <button
-              type="button"
-              onClick={handleSyncChannels}
-              disabled={isSyncing}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold bg-[#0F172A] hover:bg-slate-800 text-white active:scale-[0.98] transition-all duration-100 ease-in-out focus-visible:ring-2 focus-visible:ring-slate-900/10 focus-visible:outline-none shadow-[0_1px_3px_rgba(0,0,0,0.08)] disabled:opacity-75 cursor-pointer"
-            >
-              <RefreshCw
-                className={`w-3.5 h-3.5 ${isSyncing ? "animate-spin" : ""}`}
-              />
-              <span>{isSyncing ? "Syncing..." : "Sync Channels"}</span>
-            </button>
-          </div>
-        </div>
-      </header>
-
-      {/* Descriptive Toast Notification */}
+      {/* Toast Notification */}
       {toast && (
         <div
           role="status"
           aria-live="polite"
-          className="fixed top-20 right-5 z-50 flex items-center gap-3 px-4 py-3.5 rounded-xl bg-white border border-slate-200/90 text-slate-900 text-xs font-medium shadow-[0_10px_25px_-5px_rgba(15,23,42,0.12)] max-w-md animate-entry"
+          className="fixed top-20 right-5 z-50 flex items-center gap-3 px-4 py-3 rounded-xl bg-white border border-slate-200/90 text-slate-900 text-xs font-medium shadow-[0_10px_25px_-5px_rgba(15,23,42,0.12)] max-w-md animate-entry"
         >
-          <div className="w-7 h-7 rounded-lg bg-[#F0FDF4] border border-[#DCFCE7] flex items-center justify-center shrink-0">
-            <CheckCircle2 className="w-4 h-4 text-[#16A34A]" />
+          <div className="w-6 h-6 rounded-lg bg-emerald-50 border border-emerald-200 flex items-center justify-center shrink-0">
+            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
           </div>
           <span className="leading-relaxed text-slate-700">
             {toast.message}
@@ -892,64 +810,67 @@ export default function OrdersPage() {
 
       {/* Main Content Container */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
-        {/* Merchant-Centric Heading & Subtitle */}
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 animate-entry">
+        {/* Page Title & Actions */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 animate-entry">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#0F172A]">
-              Daily Dispatch &amp; Fulfillment Radar
+            <h1 className="text-xl font-semibold text-slate-900">
+              Orders &amp; Dispatch
             </h1>
-            <p className="text-sm text-[#475569] mt-1">
-              Keep your inventory synced and stop Cash-on-Delivery return losses
-              before parcels leave your warehouse.
+            <p className="text-sm text-slate-500 mt-0.5">
+              Daily dispatch queue, cash-on-delivery risk verification, and courier tracking.
             </p>
           </div>
 
-          {selectedIds.length > 0 && (
-            <div className="flex items-center gap-2 text-xs">
-              <span className="px-3 py-1.5 rounded-xl bg-[#F0FDF4] border border-[#DCFCE7] text-[#166534] font-semibold">
-                {selectedIds.length}{" "}
-                {selectedIds.length === 1 ? "parcel" : "parcels"} selected
+          <div className="flex items-center gap-2.5 self-start sm:self-auto">
+            {selectedIds.length > 0 && (
+              <span className="px-2.5 py-1 rounded-md bg-emerald-50 border border-emerald-200/80 text-emerald-800 text-xs font-medium">
+                {selectedIds.length} {selectedIds.length === 1 ? "parcel" : "parcels"} selected
               </span>
-            </div>
-          )}
-        </div>
+            )}
 
-        {/* Helpful Merchant Savings Tip Banner */}
-        <div className="rounded-2xl bg-[#FFFBEB] border border-[#FEF3C7] p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-[0_1px_3px_rgba(0,0,0,0.04)] animate-entry animate-entry-delay-1">
-          <div className="flex items-start sm:items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-amber-100/80 border border-amber-200/80 flex items-center justify-center text-[#92400E] shrink-0">
-              <Lightbulb className="w-4 h-4" />
-            </div>
-            <div>
-              <p className="text-xs sm:text-sm font-medium text-[#92400E] leading-relaxed">
-                💡{" "}
-                <strong className="font-semibold text-slate-900">
-                  Tip: 3 orders have flagged phone numbers.
-                </strong>{" "}
-                Verifying via WhatsApp saves{" "}
-                <strong className="text-[#166534] font-semibold bg-[#F0FDF4] border border-[#DCFCE7] px-1.5 py-0.5 rounded-md">
-                  ~Rs. 750
-                </strong>{" "}
-                in wasted two-way courier fees today.
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2 shrink-0">
             <button
               type="button"
-              onClick={() =>
-                setStatusFilter((prev) =>
-                  prev === "Pending" ? "All" : "Pending"
-                )
-              }
-              className="px-3 py-1.5 rounded-xl text-xs font-semibold bg-white hover:bg-amber-50/70 text-[#92400E] border border-[#FEF3C7] shadow-[0_1px_2px_rgba(0,0,0,0.03)] active:scale-[0.98] transition-all duration-100 ease-in-out focus-visible:ring-2 focus-visible:ring-slate-900/10 focus-visible:outline-none cursor-pointer"
+              onClick={handleSyncChannels}
+              disabled={isSyncing}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-900 hover:bg-slate-800 text-white shadow-xs transition-colors disabled:opacity-60 cursor-pointer"
             >
-              {statusFilter === "Pending"
-                ? "Show All Parcels"
-                : "Review 3 Flagged Orders →"}
+              <RefreshCw
+                className={`w-3.5 h-3.5 ${isSyncing ? "animate-spin" : ""}`}
+              />
+              <span>{isSyncing ? "Syncing..." : "Sync Channels"}</span>
             </button>
           </div>
+        </div>
+
+        {/* Tip Banner */}
+        <div className="rounded-xl bg-amber-50/70 border border-amber-200/70 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 animate-entry animate-entry-delay-1">
+          <div className="flex items-center gap-2.5">
+            <Lightbulb className="w-4 h-4 text-amber-700 shrink-0" />
+            <p className="text-xs text-amber-900 leading-relaxed">
+              <strong className="font-semibold text-slate-900">
+                3 orders have flagged phone numbers.
+              </strong>{" "}
+              Verifying via WhatsApp saves{" "}
+              <strong className="text-emerald-800 font-semibold bg-emerald-50 border border-emerald-200/60 px-1.5 py-0.5 rounded">
+                ~Rs. 750
+              </strong>{" "}
+              in return shipping fees today.
+            </p>
+          </div>
+
+          <button
+            type="button"
+            onClick={() =>
+              setStatusFilter((prev) =>
+                prev === "Pending" ? "All" : "Pending"
+              )
+            }
+            className="px-3 py-1 rounded-md text-xs font-medium bg-white hover:bg-amber-50 text-amber-900 border border-amber-200/80 shadow-xs transition-colors cursor-pointer self-start sm:self-auto"
+          >
+            {statusFilter === "Pending"
+              ? "Show All Parcels"
+              : "Review Flagged Orders →"}
+          </button>
         </div>
 
         {/* Top Metrics Bar (4 Editorial White SaaS KPI Cards with RBAC Guards) */}
@@ -1444,30 +1365,26 @@ export default function OrdersPage() {
                             {risk.level === "HIGH" ? (
                               <span
                                 title={risk.reason}
-                                className="inline-flex items-center gap-2 px-2.5 py-1 rounded-lg text-xs font-semibold bg-[#FEF2F2] text-[#991B1B] border border-[#FEE2E2]"
+                                className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-50 text-red-800 border border-red-200"
                               >
-                                <span className="relative flex h-2 w-2">
-                                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75" />
-                                  <span className="relative inline-flex rounded-full h-2 w-2 bg-[#DC2626]" />
-                                </span>
-                                <span>⚠️ High RTO Risk ({risk.score}%)</span>
+                                <span className="w-1.5 h-1.5 rounded-full bg-red-600" />
+                                <span>High Risk ({risk.score}%)</span>
                               </span>
                             ) : risk.level === "MODERATE" ? (
                               <span
                                 title={risk.reason}
-                                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-[#FFFBEB] text-[#92400E] border border-[#FEF3C7]"
+                                className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-50 text-amber-800 border border-amber-200"
                               >
-                                <AlertTriangle className="w-3.5 h-3.5 text-amber-600" />
-                                <span>Moderate COD Risk ({risk.score}%)</span>
+                                <span className="w-1.5 h-1.5 rounded-full bg-amber-600" />
+                                <span>Moderate Risk ({risk.score}%)</span>
                               </span>
                             ) : (
                               <span
                                 title={risk.reason}
-                                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-[#F0FDF4] text-[#166534] border border-[#DCFCE7]"
+                                className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-50 text-emerald-800 border border-emerald-200"
                               >
-                                <span className="w-2 h-2 rounded-full bg-[#16A34A]" />
-                                <ShieldCheck className="w-3.5 h-3.5 text-[#16A34A]" />
-                                <span>Verified Safe ({risk.score}%)</span>
+                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-600" />
+                                <span>Low Risk ({risk.score}%)</span>
                               </span>
                             )}
 

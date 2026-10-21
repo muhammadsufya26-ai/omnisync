@@ -37,6 +37,8 @@ import {
   UserCheck,
   Truck,
   LogOut,
+  Search,
+  User,
 } from "lucide-react";
 
 export interface SidebarNavItem {
@@ -572,22 +574,22 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                   isCollapsed
                     ? "lg:justify-center lg:px-0 px-3"
                     : "justify-between px-3"
-                } py-2.5 rounded-xl text-xs sm:text-sm font-medium transition-all duration-150 ease-out active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-slate-900/10 focus-visible:outline-none ${
+                } py-2 rounded-lg text-xs sm:text-sm transition-colors focus-visible:ring-2 focus-visible:ring-slate-900/10 focus-visible:outline-none ${
                   isActive
-                    ? "bg-slate-900 text-white shadow-[0_1px_3px_rgba(15,23,42,0.14)]"
+                    ? "bg-slate-100 text-slate-900 font-medium"
                     : lockedForWarehouse
-                    ? "text-slate-400 hover:text-slate-600 hover:bg-slate-50 border border-transparent"
-                    : "text-[#475569] hover:text-[#0F172A] hover:bg-slate-100/80 border border-transparent"
+                    ? "text-slate-400 hover:text-slate-600 hover:bg-slate-50"
+                    : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
                 }`}
               >
                 <span className="flex items-center gap-3 min-w-0">
                   <Icon
                     className={`w-4 h-4 shrink-0 transition-colors ${
                       isActive
-                        ? "text-emerald-400"
+                        ? "text-slate-900"
                         : lockedForWarehouse
                         ? "text-slate-400"
-                        : "text-[#64748B] group-hover:text-[#0F172A]"
+                        : "text-slate-500 group-hover:text-slate-900"
                     }`}
                   />
                   <span
@@ -608,20 +610,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 ) : (
                   item.badge && (
                     <span
-                      className={`text-[10px] font-semibold px-2 py-0.5 rounded-full items-center gap-1.5 ${
+                      className={`text-[10px] font-medium px-2 py-0.5 rounded-full items-center ${
                         isCollapsed ? "lg:hidden" : "inline-flex"
-                      } ${
-                        isActive
-                          ? "bg-white/15 text-white border border-white/20"
-                          : "bg-[#FEF2F2] text-[#991B1B] border border-[#FEE2E2]"
-                      }`}
+                      } bg-slate-100 text-slate-600 border border-slate-200/80`}
                     >
-                      {item.badge === "Live" && (
-                        <span className="relative flex h-1.5 w-1.5">
-                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75" />
-                          <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-red-500" />
-                        </span>
-                      )}
                       {item.badge}
                     </span>
                   )
@@ -631,9 +623,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           })}
 
           {/* Public Customer Order Tracker Shortcut */}
-          <div className="pt-4 mt-4 border-t border-[#F1F5F9]">
+          <div className="pt-4 mt-4 border-t border-slate-100">
             <div
-              className={`px-3 pb-2 text-[10px] font-semibold uppercase tracking-wider text-[#64748B] ${
+              className={`px-3 pb-2 text-[10px] font-semibold uppercase tracking-wider text-slate-400 ${
                 isCollapsed ? "lg:text-center lg:px-0" : ""
               }`}
             >
@@ -645,11 +637,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 isCollapsed
                   ? "lg:justify-center lg:px-0 px-3"
                   : "justify-between px-3"
-              } py-2 rounded-xl text-xs font-medium text-[#475569] hover:text-[#0F172A] hover:bg-slate-100/80 border border-transparent transition-all duration-150 active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-slate-900/10 focus-visible:outline-none`}
+              } py-2 rounded-lg text-xs font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-colors focus-visible:ring-2 focus-visible:ring-slate-900/10 focus-visible:outline-none`}
               title="Public Customer Order Tracking Portal (/track/OMS-1049)"
             >
               <span className="flex items-center gap-3 min-w-0">
-                <Truck className="w-4 h-4 text-[#1E40AF] shrink-0" />
+                <Truck className="w-4 h-4 text-slate-500 group-hover:text-slate-900 shrink-0" />
                 <span
                   className={`truncate ${isCollapsed ? "lg:hidden" : "inline"}`}
                 >
@@ -657,7 +649,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 </span>
               </span>
               <ArrowUpRight
-                className={`w-3.5 h-3.5 text-[#64748B] ${
+                className={`w-3.5 h-3.5 text-slate-400 ${
                   isCollapsed ? "lg:hidden" : "inline"
                 }`}
               />
@@ -665,36 +657,29 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </div>
         </nav>
 
-        {/* Sidebar Footer: Storefront Sync Card & Collapse Toggle */}
-        <div className="p-3 border-t border-[#F1F5F9] space-y-2">
+        {/* Sidebar Footer: Clean Sync Status & Collapse Toggle */}
+        <div className="p-3 border-t border-slate-100 space-y-2">
           <div
-            className={`rounded-xl bg-[#F8FAFC] border border-slate-200/80 p-3 ${
+            className={`rounded-lg bg-slate-50 border border-slate-200/80 p-3 ${
               isCollapsed ? "lg:hidden" : "block"
             }`}
           >
-            <div className="flex items-center justify-between">
-              <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#0F172A]">
-                <Sparkles className="w-3.5 h-3.5 text-[#16A34A]" />
-                Live Sync Engine
+            <div className="flex items-center justify-between text-xs font-medium text-slate-700">
+              <span className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                <span>Storefront Sync</span>
               </span>
-              <span className="inline-flex items-center gap-1.5 text-[10px] font-medium text-[#166534] bg-[#F0FDF4] border border-[#DCFCE7] px-2 py-0.5 rounded-full">
-                <span className="relative flex h-1.5 w-1.5">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                  <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-[#16A34A]" />
-                </span>
-                {sseConnected ? "Connected" : "Active"}
+              <span className="text-[11px] text-slate-500">
+                {sseConnected ? "Active" : "Connecting"}
               </span>
             </div>
-            <p className="text-[11px] text-[#64748B] mt-1 leading-relaxed">
-              WhatsApp, Daraz &amp; Courier AWB hooks synced in real time.
-            </p>
             <button
               type="button"
               onClick={handleOpenActivityDrawer}
-              className="mt-2.5 w-full inline-flex items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-semibold bg-white hover:bg-slate-50 text-[#0F172A] border border-slate-200/80 shadow-[0_1px_2px_rgba(0,0,0,0.03)] active:scale-[0.98] transition-all duration-100 ease-in-out focus-visible:ring-2 focus-visible:ring-slate-900/10 focus-visible:outline-none cursor-pointer"
+              className="mt-2.5 w-full inline-flex items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-medium bg-white hover:bg-slate-50 text-slate-700 border border-slate-200/80 shadow-[0_1px_2px_rgba(0,0,0,0.03)] transition-colors cursor-pointer"
             >
-              <Activity className="w-3.5 h-3.5 text-[#16A34A]" />
-              <span>View Sync Audit Logs</span>
+              <Activity className="w-3.5 h-3.5 text-slate-500" />
+              <span>Sync Audit Logs</span>
             </button>
           </div>
 
@@ -702,13 +687,13 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             type="button"
             onClick={() => setIsCollapsed((prev) => !prev)}
             aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
-            className="hidden lg:flex w-full items-center justify-center gap-2 px-3 py-2 rounded-xl text-xs font-medium text-[#64748B] hover:text-[#0F172A] hover:bg-slate-100/80 border border-transparent hover:border-slate-200/80 active:scale-[0.98] transition-all duration-100 ease-in-out focus-visible:ring-2 focus-visible:ring-slate-900/10 focus-visible:outline-none cursor-pointer"
+            className="hidden lg:flex w-full items-center justify-center gap-2 px-3 py-2 rounded-lg text-xs font-medium text-slate-500 hover:text-slate-900 hover:bg-slate-100/80 transition-colors cursor-pointer"
           >
             {isCollapsed ? (
-              <PanelLeftOpen className="w-4 h-4 text-[#0F172A]" />
+              <PanelLeftOpen className="w-4 h-4 text-slate-900" />
             ) : (
               <>
-                <PanelLeftClose className="w-4 h-4 text-[#64748B]" />
+                <PanelLeftClose className="w-4 h-4 text-slate-500" />
                 <span>Collapse Sidebar</span>
               </>
             )}
@@ -735,42 +720,42 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               <span className="font-bold text-sm text-[#0F172A]">OmniSync</span>
             </div>
 
-            <div className="hidden lg:flex items-center gap-2.5 min-w-0">
-              <span className="text-xs font-medium text-[#64748B]">
-                Operations
-              </span>
-              <span className="text-slate-300">/</span>
-              <span className="text-xs font-semibold text-[#0F172A] truncate">
-                {currentRouteTitle}
-              </span>
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-[#F0FDF4] text-[#166534] border border-[#DCFCE7]">
-                <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-[#16A34A]" />
-                </span>
-                Live Feed Active
-              </span>
+            {/* Simple Search Bar */}
+            <div className="hidden sm:flex items-center relative w-64 md:w-80">
+              <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <input
+                type="search"
+                placeholder="Search orders, inventory..."
+                aria-label="Search orders and inventory"
+                className="w-full pl-9 pr-3 py-1.5 text-xs bg-slate-50 border border-slate-200/80 rounded-lg text-slate-900 placeholder:text-slate-400 focus:outline-none focus:bg-white focus:ring-1 focus:ring-slate-300 transition-all"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    const q = (e.target as HTMLInputElement).value;
+                    if (q.trim()) router.push(`/orders?search=${encodeURIComponent(q.trim())}`);
+                  }
+                }}
+              />
             </div>
           </div>
 
-          {/* Right Actions: RBAC Role Switcher, Simulate Signed Webhook, Team Settings, & Sync Logs Bell */}
+          {/* Right Actions: RBAC Role, Simulate, Notification Bell & User Avatar */}
           <div className="flex items-center gap-2">
             {/* Active RBAC Role Selector */}
-            <div className="flex items-center gap-1.5 rounded-xl bg-[#F8FAFC] border border-slate-200/80 px-2.5 py-1.5">
-              <span className="hidden sm:inline text-[11px] font-medium text-[#64748B]">
+            <div className="flex items-center gap-1.5 rounded-lg bg-slate-50 border border-slate-200/80 px-2.5 py-1.5">
+              <span className="hidden sm:inline text-[11px] font-medium text-slate-500">
                 Role:
               </span>
               <select
                 aria-label="Switch Active RBAC User Role"
                 value={currentRole}
                 onChange={(e) => setCurrentRole(e.target.value as UserRole)}
-                className="bg-transparent text-xs font-semibold text-[#0F172A] focus:outline-none cursor-pointer"
+                className="bg-transparent text-xs font-semibold text-slate-900 focus:outline-none cursor-pointer"
               >
                 {ALL_ROLES.map((r) => (
                   <option
                     key={r}
                     value={r}
-                    className="bg-white text-[#0F172A]"
+                    className="bg-white text-slate-900"
                   >
                     {r}
                   </option>
@@ -781,21 +766,21 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <button
               type="button"
               onClick={() => void handleSimulateIncomingHook()}
-              className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium bg-white hover:bg-slate-50 text-[#475569] hover:text-[#0F172A] border border-slate-200/80 shadow-[0_1px_2px_rgba(0,0,0,0.03)] active:scale-[0.98] transition-all duration-100 ease-in-out focus-visible:ring-2 focus-visible:ring-slate-900/10 focus-visible:outline-none cursor-pointer"
-              title="Dispatch HMAC-SHA256 signed webhook order to /api/webhooks/orders"
+              className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-white hover:bg-slate-50 text-slate-700 border border-slate-200/80 shadow-[0_1px_2px_rgba(0,0,0,0.03)] active:scale-[0.98] transition-colors cursor-pointer"
+              title="Dispatch simulated incoming order webhook"
             >
-              <Webhook className="w-3.5 h-3.5 text-[#16A34A]" />
-              <span>Simulate Order</span>
+              <Webhook className="w-3.5 h-3.5 text-slate-500" />
+              <span>Simulate</span>
             </button>
 
             <Link
               href="/settings/team"
-              className={`p-2 rounded-xl border transition-all duration-100 active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-slate-900/10 focus-visible:outline-none ${
+              className={`p-2 rounded-lg border transition-colors active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-slate-900/10 focus-visible:outline-none ${
                 pathname?.startsWith("/settings/team")
-                  ? "bg-slate-900 text-white border-slate-900"
-                  : "bg-white text-[#475569] hover:text-[#0F172A] border-slate-200/80 hover:bg-slate-50 shadow-[0_1px_2px_rgba(0,0,0,0.03)]"
+                  ? "bg-slate-100 text-slate-900 border-slate-300"
+                  : "bg-white text-slate-600 hover:text-slate-900 border-slate-200/80 hover:bg-slate-50"
               }`}
-              title="Team & RBAC Permissions (/settings/team)"
+              title="Team & RBAC Permissions"
               aria-label="Team and RBAC Settings"
             >
               <SlidersHorizontal className="w-4 h-4" />
@@ -804,39 +789,41 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <button
               type="button"
               onClick={handleOpenActivityDrawer}
-              aria-label="Open Global Sync Logs and Activity Panel"
-              className="relative inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white hover:bg-slate-50 text-[#0F172A] border border-slate-200/80 shadow-[0_1px_2px_rgba(0,0,0,0.03)] active:scale-[0.98] transition-all duration-100 ease-in-out focus-visible:ring-2 focus-visible:ring-slate-900/10 focus-visible:outline-none cursor-pointer"
+              aria-label="Open Sync Logs and Notifications"
+              title="Sync Logs & Notifications"
+              className="relative p-2 rounded-lg bg-white hover:bg-slate-50 text-slate-600 hover:text-slate-900 border border-slate-200/80 shadow-[0_1px_2px_rgba(0,0,0,0.03)] transition-colors cursor-pointer"
             >
-              <div className="relative">
-                <Bell className="w-4 h-4 text-[#475569]" />
-                {unreadCount > 0 && (
-                  <span className="absolute -top-1.5 -right-1.5 min-w-[16px] h-4 px-1 rounded-full bg-[#DC2626] text-white text-[10px] font-bold flex items-center justify-center">
-                    {unreadCount}
-                  </span>
-                )}
-              </div>
-              <span className="hidden md:inline text-xs font-medium text-[#0F172A]">
-                Sync Logs
-              </span>
-              <span className="text-[11px] font-mono px-1.5 py-0.5 rounded bg-slate-100 text-[#475569] border border-slate-200/80">
-                {auditLogs.length}
-              </span>
+              <Bell className="w-4 h-4" />
+              {unreadCount > 0 && (
+                <span className="absolute -top-1 -right-1 min-w-[16px] h-4 px-1 rounded-full bg-red-600 text-white text-[10px] font-bold flex items-center justify-center">
+                  {unreadCount}
+                </span>
+              )}
             </button>
 
-            <button
-              type="button"
-              onClick={async () => {
-                await fetch("/api/auth/login", { method: "DELETE" });
-                router.push("/login");
-                router.refresh();
-              }}
-              title="Sign out of OmniSync session"
-              aria-label="Sign out"
-              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-white hover:bg-[#FEF2F2] text-[#475569] hover:text-[#991B1B] border border-slate-200/80 hover:border-[#FEE2E2] text-xs font-medium active:scale-[0.98] transition-all duration-100 ease-in-out focus-visible:ring-2 focus-visible:ring-slate-900/10 focus-visible:outline-none cursor-pointer"
-            >
-              <LogOut className="w-3.5 h-3.5" />
-              <span className="hidden xl:inline">Sign Out</span>
-            </button>
+            {/* User Avatar & Logout */}
+            <div className="flex items-center gap-2 pl-2 border-l border-slate-200/80">
+              <div
+                className="w-8 h-8 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-xs font-semibold text-slate-700"
+                title={`Logged in as ${currentRole}`}
+              >
+                {currentRole === "OWNER" ? "AD" : currentRole.slice(0, 2)}
+              </div>
+
+              <button
+                type="button"
+                onClick={async () => {
+                  await fetch("/api/auth/login", { method: "DELETE" });
+                  router.push("/login");
+                  router.refresh();
+                }}
+                title="Sign out of OmniSync session"
+                aria-label="Sign out"
+                className="p-1.5 rounded-lg text-slate-500 hover:text-red-700 hover:bg-red-50 transition-colors cursor-pointer"
+              >
+                <LogOut className="w-4 h-4" />
+              </button>
+            </div>
           </div>
         </header>
 
