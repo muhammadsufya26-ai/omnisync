@@ -4,22 +4,15 @@ import React, { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import {
-  ShieldCheck,
+  ShoppingBag,
   Mail,
   Lock,
   Eye,
   EyeOff,
   ArrowRight,
   Loader2,
-  Sparkles,
   AlertCircle,
-  KeyRound,
-  Terminal,
-  Truck,
-  Building2,
-  UserCheck,
   Phone,
-  PackageSearch,
 } from "lucide-react";
 import { useOmniSync, type UserRole } from "@/context/OmniSyncContext";
 
@@ -54,9 +47,8 @@ function LoginFormContent() {
   // Shared Form State
   const [rememberMe, setRememberMe] = useState<boolean>(true);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [loadingActionLabel, setLoadingActionLabel] = useState<string>(
-    "Signing in..."
-  );
+  const [loadingActionLabel, setLoadingActionLabel] =
+    useState<string>("Signing in...");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [forgotPasswordNotice, setForgotPasswordNotice] =
     useState<boolean>(false);
@@ -130,7 +122,7 @@ function LoginFormContent() {
         rememberMe,
         redirectTo: redirectParam,
       },
-      "Signing in to Owner Hub..."
+      "Signing in..."
     );
   };
 
@@ -143,74 +135,66 @@ function LoginFormContent() {
         email: customerEmail.trim(),
         rememberMe,
       },
-      "Opening Customer Portal..."
+      "Verifying order access..."
     );
   };
 
-  // Instant 1-Click Test Quick-Login Handlers
-  const handleQuickLoginOwner = async () => {
-    setActiveTab("owner");
-    setOwnerEmail("owner@omnisync.com");
-    setOwnerPassword("admin123");
-    await executeLoginRequest(
-      {
-        portal: "owner",
-        email: "owner@omnisync.com",
-        password: "admin123",
-        rememberMe: true,
-        redirectTo: "/orders",
-      },
-      "Logging in as Owner (Admin)..."
-    );
-  };
-
-  const handleQuickLoginCustomer = async (
-    email = "ayesha.malik@example.com",
-    phone = "+92-333-5120987",
-    label = "Ayesha Malik"
-  ) => {
-    setActiveTab("customer");
-    setCustomerIdentifier(phone);
-    setCustomerEmail(email);
-    await executeLoginRequest(
-      {
-        portal: "customer",
-        identifier: phone,
-        email,
-        rememberMe: true,
-      },
-      `Logging in as Customer (${label})...`
-    );
+  const handleAutoFill = async (type: "owner" | "customer") => {
+    if (type === "owner") {
+      setActiveTab("owner");
+      setOwnerEmail("owner@omnisync.com");
+      setOwnerPassword("admin123");
+      await executeLoginRequest(
+        {
+          portal: "owner",
+          email: "owner@omnisync.com",
+          password: "admin123",
+          rememberMe: true,
+          redirectTo: redirectParam,
+        },
+        "Signing in as Owner..."
+      );
+    } else {
+      setActiveTab("customer");
+      setCustomerIdentifier("+92-333-5120987");
+      setCustomerEmail("ayesha.malik@example.com");
+      await executeLoginRequest(
+        {
+          portal: "customer",
+          identifier: "+92-333-5120987",
+          email: "ayesha.malik@example.com",
+          rememberMe: true,
+        },
+        "Signing in as Customer..."
+      );
+    }
   };
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] text-slate-900 flex flex-col justify-center items-center px-4 py-10 relative">
-      {/* Main Centered Auth Card Wrapper */}
-      <div className="relative z-10 w-full max-w-lg space-y-6">
-        {/* Top Brand Header */}
+    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col justify-center items-center px-4 py-12">
+      <div className="w-full max-w-md space-y-6">
+        {/* Header / Brand */}
         <div className="flex flex-col items-center text-center space-y-2">
-          <div className="inline-flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center shadow-xs">
-              <ShieldCheck className="w-5 h-5" />
-            </div>
-            <div className="text-left">
-              <span className="text-xl font-bold tracking-tight text-slate-900">
-                OmniSync
-              </span>
-              <p className="text-xs text-slate-500">
-                Store Operations &amp; Order Portal
-              </p>
-            </div>
+          <div className="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center shadow-xs">
+            <ShoppingBag className="w-5 h-5" />
+          </div>
+          <div className="space-y-0.5">
+            <h1 className="text-xl font-semibold tracking-tight text-slate-900">
+              OmniSync
+            </h1>
+            <p className="text-sm text-slate-500">
+              Sign in to manage your orders and shipments
+            </p>
           </div>
         </div>
 
-        {/* Center SaaS Dual-Portal Login Card */}
-        <div className="rounded-2xl bg-white border border-slate-200/80 shadow-[0_1px_3px_rgba(0,0,0,0.04)] p-6 sm:p-8 space-y-6">
-          {/* Dual Portal Tab Switcher */}
+        {/* Login Card */}
+        <div className="bg-white rounded-2xl border border-slate-200/90 shadow-sm p-6 sm:p-8 space-y-5">
+          {/* Tab Switcher: Store Owner vs Track Your Order */}
           <div
             role="tablist"
-            aria-label="Select Login Portal"
-            className="grid grid-cols-2 gap-1.5 p-1 rounded-xl bg-slate-100 border border-slate-200/80"
+            aria-label="Portal Selection"
+            className="grid grid-cols-2 p-1 rounded-lg bg-slate-100 border border-slate-200/70"
           >
             <button
               type="button"
@@ -220,16 +204,14 @@ function LoginFormContent() {
                 setActiveTab("owner");
                 setErrorMessage(null);
               }}
-              className={`flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+              className={`py-2 px-3 rounded-md text-xs font-medium transition-all cursor-pointer ${
                 activeTab === "owner"
                   ? "bg-white text-slate-900 shadow-xs"
-                  : "text-slate-600 hover:text-slate-900"
+                  : "text-slate-500 hover:text-slate-800"
               }`}
             >
-              <Building2 className="w-3.5 h-3.5 shrink-0" />
-              <span className="truncate">Business Owner / Staff</span>
+              Store Owner
             </button>
-
             <button
               type="button"
               role="tab"
@@ -238,70 +220,43 @@ function LoginFormContent() {
                 setActiveTab("customer");
                 setErrorMessage(null);
               }}
-              className={`flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+              className={`py-2 px-3 rounded-md text-xs font-medium transition-all cursor-pointer ${
                 activeTab === "customer"
                   ? "bg-white text-slate-900 shadow-xs"
-                  : "text-slate-600 hover:text-slate-900"
+                  : "text-slate-500 hover:text-slate-800"
               }`}
             >
-              <PackageSearch className="w-3.5 h-3.5 shrink-0" />
-              <span className="truncate">Customer Track &amp; Order Portal</span>
+              Track Your Order
             </button>
           </div>
 
-          {/* Active Tab Heading */}
-          <div className="space-y-1">
-            <div className="flex items-center justify-between">
-              <h1 className="text-lg font-bold text-slate-900 tracking-tight">
-                {activeTab === "owner"
-                  ? "Merchant & Staff Sign In"
-                  : "Customer Order Portal"}
-              </h1>
-              <span className="text-[10px] font-medium uppercase tracking-wider px-2 py-0.5 rounded bg-slate-100 text-slate-700 border border-slate-200/80">
-                {activeTab === "owner" ? "Role: Owner / Staff" : "Role: Customer"}
-              </span>
-            </div>
-            <p className="text-xs text-slate-500">
-              {activeTab === "owner"
-                ? "Sign in with your store credentials to manage orders and inventory."
-                : "Enter your Phone Number or Order ID and Email to track your deliveries."}
-            </p>
-          </div>
-
-          {/* Error Alert Banner */}
+          {/* Error Message Alert */}
           {errorMessage && (
             <div
               role="alert"
-              className="flex items-start gap-2.5 p-3 rounded-xl bg-red-50 border border-red-200 text-xs text-red-800"
+              className="flex items-start gap-2.5 p-3 rounded-lg bg-red-50 border border-red-200 text-xs text-red-800"
             >
               <AlertCircle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
               <span>{errorMessage}</span>
             </div>
           )}
 
-          {/* Forgot Password Stub Notice */}
+          {/* Forgot Password Notice */}
           {forgotPasswordNotice && activeTab === "owner" && (
             <div
               role="status"
-              className="flex items-start gap-2.5 p-3 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-800"
+              className="p-3 rounded-lg bg-slate-50 border border-slate-200 text-xs text-slate-600 space-y-1"
             >
-              <KeyRound className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-              <div>
-                <p className="font-semibold text-amber-900">
-                  Password Reset Dispatched (Demo Stub)
-                </p>
-                <p className="text-amber-800 mt-0.5">
-                  An administrator recovery link was dispatched to{" "}
-                  <span className="font-mono underline">
-                    {ownerEmail || "owner@omnisync.com"}
-                  </span>
-                  . Use the Quick-Login buttons below for instant access.
-                </p>
-              </div>
+              <p className="font-medium text-slate-900">
+                Demo Password Reset
+              </p>
+              <p>
+                Default credentials are <span className="font-mono text-slate-800">owner@omnisync.com</span> / <span className="font-mono text-slate-800">admin123</span>. You can also use the demo autofill below.
+              </p>
             </div>
           )}
 
-          {/* TAB 1 FORM: Business Owner / Staff */}
+          {/* Form: Store Owner */}
           {activeTab === "owner" ? (
             <form onSubmit={handleOwnerSubmit} className="space-y-4">
               <div className="space-y-1.5">
@@ -309,7 +264,7 @@ function LoginFormContent() {
                   htmlFor="owner-email"
                   className="block text-xs font-medium text-slate-700"
                 >
-                  Owner / Staff Email
+                  Email Address
                 </label>
                 <div className="relative">
                   <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
@@ -322,7 +277,7 @@ function LoginFormContent() {
                     value={ownerEmail}
                     onChange={(e) => setOwnerEmail(e.target.value)}
                     placeholder="owner@omnisync.com"
-                    className="w-full pl-10 pr-4 py-2 rounded-xl bg-slate-50 border border-slate-200 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:bg-white focus:ring-1 focus:ring-slate-300 transition-all"
+                    className="w-full bg-white border border-slate-300 focus:border-slate-900 focus:ring-1 focus:ring-slate-900 text-slate-900 placeholder:text-slate-400 text-sm rounded-lg pl-10 pr-3.5 py-2.5 transition-all outline-none"
                   />
                 </div>
               </div>
@@ -338,12 +293,11 @@ function LoginFormContent() {
                   <button
                     type="button"
                     onClick={() => setForgotPasswordNotice(true)}
-                    className="text-xs font-medium text-slate-600 hover:text-slate-900 transition-colors cursor-pointer"
+                    className="text-xs text-slate-500 hover:text-slate-900 transition-colors cursor-pointer"
                   >
                     Forgot password?
                   </button>
                 </div>
-
                 <div className="relative">
                   <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                   <input
@@ -355,15 +309,13 @@ function LoginFormContent() {
                     value={ownerPassword}
                     onChange={(e) => setOwnerPassword(e.target.value)}
                     placeholder="••••••••"
-                    className="w-full pl-10 pr-10 py-2 rounded-xl bg-slate-50 border border-slate-200 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:bg-white focus:ring-1 focus:ring-slate-300 transition-all"
+                    className="w-full bg-white border border-slate-300 focus:border-slate-900 focus:ring-1 focus:ring-slate-900 text-slate-900 placeholder:text-slate-400 text-sm rounded-lg pl-10 pr-10 py-2.5 transition-all outline-none"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword((prev) => !prev)}
-                    aria-label={
-                      showPassword ? "Hide password" : "Show password"
-                    }
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
+                    aria-label={showPassword ? "Hide password" : "Show password"}
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
                   >
                     {showPassword ? (
                       <EyeOff className="w-4 h-4" />
@@ -382,18 +334,14 @@ function LoginFormContent() {
                     onChange={(e) => setRememberMe(e.target.checked)}
                     className="w-4 h-4 rounded border-slate-300 text-slate-900 focus:ring-slate-900/10 cursor-pointer"
                   />
-                  <span>Remember me for 30 days</span>
+                  <span>Remember me</span>
                 </label>
-
-                <span className="text-[11px] font-mono text-slate-400">
-                  Redirects to /orders
-                </span>
               </div>
 
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full py-2.5 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-semibold text-sm shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-70"
+                className="w-full bg-slate-900 hover:bg-slate-800 text-white font-medium py-2.5 rounded-lg transition-all text-sm flex items-center justify-center gap-2 cursor-pointer disabled:opacity-70 shadow-xs"
               >
                 {isLoading ? (
                   <>
@@ -402,14 +350,14 @@ function LoginFormContent() {
                   </>
                 ) : (
                   <>
-                    <span>Sign in as Business Owner</span>
+                    <span>Sign In</span>
                     <ArrowRight className="w-4 h-4" />
                   </>
                 )}
               </button>
             </form>
           ) : (
-            /* TAB 2 FORM: Customer Track & Order Portal */
+            /* Form: Customer Track & Order */
             <form onSubmit={handleCustomerSubmit} className="space-y-4">
               <div className="space-y-1.5">
                 <label
@@ -427,8 +375,8 @@ function LoginFormContent() {
                     required
                     value={customerIdentifier}
                     onChange={(e) => setCustomerIdentifier(e.target.value)}
-                    placeholder="+92-333-5120987 or ORD-2026-1003"
-                    className="w-full pl-10 pr-4 py-2 rounded-xl bg-slate-50 border border-slate-200 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:bg-white focus:ring-1 focus:ring-slate-300 transition-all"
+                    placeholder="+92 333 5120987 or ORD-9040"
+                    className="w-full bg-white border border-slate-300 focus:border-slate-900 focus:ring-1 focus:ring-slate-900 text-slate-900 placeholder:text-slate-400 text-sm rounded-lg pl-10 pr-3.5 py-2.5 transition-all outline-none"
                   />
                 </div>
               </div>
@@ -438,7 +386,7 @@ function LoginFormContent() {
                   htmlFor="customer-email"
                   className="block text-xs font-medium text-slate-700"
                 >
-                  Customer Email Address
+                  Email Address
                 </label>
                 <div className="relative">
                   <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
@@ -451,7 +399,7 @@ function LoginFormContent() {
                     value={customerEmail}
                     onChange={(e) => setCustomerEmail(e.target.value)}
                     placeholder="ayesha.malik@example.com"
-                    className="w-full pl-10 pr-4 py-2 rounded-xl bg-slate-50 border border-slate-200 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:bg-white focus:ring-1 focus:ring-slate-300 transition-all"
+                    className="w-full bg-white border border-slate-300 focus:border-slate-900 focus:ring-1 focus:ring-slate-900 text-slate-900 placeholder:text-slate-400 text-sm rounded-lg pl-10 pr-3.5 py-2.5 transition-all outline-none"
                   />
                 </div>
               </div>
@@ -464,18 +412,14 @@ function LoginFormContent() {
                     onChange={(e) => setRememberMe(e.target.checked)}
                     className="w-4 h-4 rounded border-slate-300 text-slate-900 focus:ring-slate-900/10 cursor-pointer"
                   />
-                  <span>Keep my order tracker signed in</span>
+                  <span>Remember this device</span>
                 </label>
-
-                <span className="text-[11px] font-mono text-slate-400">
-                  Redirects to /customer/orders
-                </span>
               </div>
 
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full py-2.5 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-semibold text-sm shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-70"
+                className="w-full bg-slate-900 hover:bg-slate-800 text-white font-medium py-2.5 rounded-lg transition-all text-sm flex items-center justify-center gap-2 cursor-pointer disabled:opacity-70 shadow-xs"
               >
                 {isLoading ? (
                   <>
@@ -484,7 +428,7 @@ function LoginFormContent() {
                   </>
                 ) : (
                   <>
-                    <span>View My Orders &amp; Live Tracking</span>
+                    <span>Track Order</span>
                     <ArrowRight className="w-4 h-4" />
                   </>
                 )}
@@ -492,98 +436,40 @@ function LoginFormContent() {
             </form>
           )}
 
-          {/* One-Click Test Quick-Login Buttons Banner */}
-          <div className="pt-5 border-t border-slate-100 space-y-3">
-            <div className="rounded-xl bg-slate-50 border border-slate-200/80 p-4 space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Terminal className="w-4 h-4 text-slate-600 shrink-0" />
-                  <span className="text-xs font-semibold text-slate-800">
-                    Instant Demo Quick-Login
-                  </span>
-                </div>
-                <span className="text-[10px] font-mono text-slate-500">
-                  Seeded Accounts
-                </span>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                {/* Quick Login Button 1: Login as Owner (Admin) */}
-                <button
-                  type="button"
-                  disabled={isLoading}
-                  onClick={() => void handleQuickLoginOwner()}
-                  className="flex flex-col items-start p-3 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 shadow-xs transition-all text-left cursor-pointer group disabled:opacity-60"
-                >
-                  <div className="flex items-center justify-between w-full">
-                    <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-900">
-                      <Building2 className="w-3.5 h-3.5" />
-                      Login as Owner (Admin)
-                    </span>
-                    <ArrowRight className="w-3.5 h-3.5 text-slate-400 group-hover:translate-x-0.5 transition-transform" />
-                  </div>
-                  <p className="text-[11px] font-mono text-slate-500 mt-1 truncate w-full">
-                    owner@omnisync.com
-                  </p>
-                </button>
-
-                {/* Quick Login Button 2: Login as Customer */}
-                <button
-                  type="button"
-                  disabled={isLoading}
-                  onClick={() =>
-                    void handleQuickLoginCustomer(
-                      "ayesha.malik@example.com",
-                      "+92-333-5120987",
-                      "Ayesha Malik"
-                    )
-                  }
-                  className="flex flex-col items-start p-3 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 shadow-xs transition-all text-left cursor-pointer group disabled:opacity-60"
-                >
-                  <div className="flex items-center justify-between w-full">
-                    <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-900">
-                      <UserCheck className="w-3.5 h-3.5" />
-                      Login as Customer
-                    </span>
-                    <ArrowRight className="w-3.5 h-3.5 text-slate-400 group-hover:translate-x-0.5 transition-transform" />
-                  </div>
-                  <p className="text-[11px] font-mono text-slate-500 mt-1 truncate w-full">
-                    ayesha.malik@example.com
-                  </p>
-                </button>
-              </div>
-
-              {/* Second Seeded Customer Option */}
-              <div className="flex items-center justify-between pt-1 text-[11px] text-slate-500">
-                <span>Alt Customer:</span>
-                <button
-                  type="button"
-                  disabled={isLoading}
-                  onClick={() =>
-                    void handleQuickLoginCustomer(
-                      "sana.farooq@example.com",
-                      "+92-301-7745210",
-                      "Sana Farooq"
-                    )
-                  }
-                  className="font-mono text-slate-700 hover:text-slate-900 underline cursor-pointer"
-                >
-                  Login as Sana Farooq →
-                </button>
-              </div>
+          {/* Toned Down Demo Login Section */}
+          <div className="pt-4 border-t border-slate-100 space-y-2.5">
+            <p className="text-xs text-slate-500 text-center">
+              Testing the platform? Choose a role to auto-fill:
+            </p>
+            <div className="flex items-center justify-center gap-2">
+              <button
+                type="button"
+                disabled={isLoading}
+                onClick={() => void handleAutoFill("owner")}
+                className="border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs py-1.5 px-3 rounded-md transition-colors cursor-pointer disabled:opacity-60 font-medium"
+              >
+                Owner Demo
+              </button>
+              <button
+                type="button"
+                disabled={isLoading}
+                onClick={() => void handleAutoFill("customer")}
+                className="border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs py-1.5 px-3 rounded-md transition-colors cursor-pointer disabled:opacity-60 font-medium"
+              >
+                Customer Demo
+              </button>
             </div>
           </div>
         </div>
 
-        {/* Bottom Public Customer Order Tracker Shortcut */}
+        {/* Quiet Footer Links */}
         <div className="flex items-center justify-between text-xs text-slate-500 px-1">
-          <span>Have a direct tracking number?</span>
+          <span>Need to check a package?</span>
           <Link
             href="/track/ORD-9040"
-            className="inline-flex items-center gap-1.5 text-slate-700 hover:text-slate-900 font-medium transition-colors"
+            className="text-slate-700 hover:text-slate-900 font-medium transition-colors"
           >
-            <Truck className="w-3.5 h-3.5 text-slate-500" />
-            <span>Direct Waybill Lookup (/track/ORD-9040) →</span>
+            Track shipment →
           </Link>
         </div>
       </div>
@@ -595,8 +481,8 @@ export default function LoginPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen bg-[#F8FAFC] text-slate-900 flex items-center justify-center">
-          <Loader2 className="w-6 h-6 text-slate-700 animate-spin" />
+        <div className="min-h-screen bg-slate-50 text-slate-900 flex items-center justify-center">
+          <Loader2 className="w-6 h-6 text-slate-600 animate-spin" />
         </div>
       }
     >
