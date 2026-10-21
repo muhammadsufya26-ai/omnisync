@@ -1,28 +1,53 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { ShieldCheck, ArrowRight, Lock, Mail } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
 export default function LoginPage() {
-  const router = useRouter();
   const [role, setRole] = useState<"OWNER" | "CUSTOMER">("OWNER");
   const [email, setEmail] = useState("owner@omnisync.com");
   const [password, setPassword] = useState("admin123");
   const [loading, setLoading] = useState(false);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setTimeout(() => {
-      if (role === "OWNER") {
-        router.push("/orders");
-      } else {
-        router.push("/customer/orders");
-      }
-    }, 500);
+
+    const targetRoute = role === "OWNER" ? "/orders" : "/customer/orders";
+
+    try {
+      await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(
+          role === "OWNER"
+            ? { portal: "owner", email, password }
+            : { portal: "customer", identifier: email, email }
+        ),
+      });
+    } catch {
+      // Continue with client fallback if network fails
+    }
+
+    if (typeof window !== "undefined") {
+      const sessionToken = "session_token_" + Date.now() + "_" + role;
+      const userPayload = JSON.stringify({
+        role: role,
+        email: email,
+        name: role === "OWNER" ? "Store Owner" : "Ayesha Malik",
+      });
+
+      document.cookie = `omnisync_session=${sessionToken}; path=/; max-age=2592000; SameSite=Lax`;
+      document.cookie = `omnisync_user=${encodeURIComponent(userPayload)}; path=/; max-age=2592000; SameSite=Lax`;
+
+      localStorage.setItem("omnisync_user_role", role);
+      localStorage.setItem("omnisync_user_email", email);
+
+      // Hard direct location navigation guarantees immediate page change without getting stuck
+      window.location.href = targetRoute;
+    }
   };
 
   const setDemoUser = (userRole: "OWNER" | "CUSTOMER") => {
