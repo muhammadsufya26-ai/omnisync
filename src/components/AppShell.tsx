@@ -149,7 +149,7 @@ const DEFAULT_SYNC_AUDIT_LOGS: SyncAuditLogItem[] = [
 
 const SIDEBAR_NAV_ITEMS: SidebarNavItem[] = [
   {
-    label: "Dashboard",
+    label: "Overview",
     href: "/",
     icon: LayoutDashboard,
     warehouseAllowed: false,
@@ -158,7 +158,6 @@ const SIDEBAR_NAV_ITEMS: SidebarNavItem[] = [
     label: "Orders",
     href: "/orders",
     icon: ShoppingBag,
-    badge: "Live",
     warehouseAllowed: true,
   },
   {
@@ -171,7 +170,6 @@ const SIDEBAR_NAV_ITEMS: SidebarNavItem[] = [
     label: "Customers",
     href: "/customers",
     icon: Users,
-    badge: "CRM",
     warehouseAllowed: false,
   },
   {
@@ -346,19 +344,19 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   const currentRouteTitle = useMemo(() => {
     if (pathname === "/" || pathname === "/dashboard") {
-      return "Executive Command Center";
+      return "Overview";
     }
     if (pathname?.startsWith("/orders"))
-      return "Daily Dispatch & Fulfillment Radar";
-    if (pathname?.startsWith("/inventory")) return "Inventory & Stock Sync";
-    if (pathname?.startsWith("/customers")) return "Customer CRM & LTV";
+      return "Orders & Fulfillment";
+    if (pathname?.startsWith("/inventory")) return "Inventory Ledger";
+    if (pathname?.startsWith("/customers")) return "Customers";
     if (pathname?.startsWith("/integrations"))
-      return "Storefront Integrations";
+      return "Channel Integrations";
     if (pathname?.startsWith("/settings/team"))
-      return "Team & RBAC Permissions";
-    if (pathname?.startsWith("/settings")) return "Settings & Preferences";
-    if (pathname?.startsWith("/track")) return "Public Order Tracker";
-    return "OmniSync Workspace";
+      return "Team Members";
+    if (pathname?.startsWith("/settings")) return "Settings";
+    if (pathname?.startsWith("/track")) return "Order Tracker";
+    return "OmniSync";
   }, [pathname]);
 
   // Check if current route is blocked by RBAC for WAREHOUSE role
@@ -503,26 +501,21 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <Link
             href={currentRole === "WAREHOUSE" ? "/orders" : "/"}
             className="flex items-center gap-3 min-w-0 focus-visible:ring-2 focus-visible:ring-slate-900/10 focus-visible:outline-none rounded-xl"
-            title="OmniSync — Multi-Channel D2C Operations Hub"
+            title="OmniSync — Multi-Channel E-Commerce"
           >
-            <div className="w-9 h-9 rounded-xl bg-[#F0FDF4] border border-[#DCFCE7] flex items-center justify-center shrink-0 shadow-[0_1px_2px_rgba(0,0,0,0.03)]">
-              <ShieldCheck className="w-5 h-5 text-[#16A34A]" />
+            <div className="w-9 h-9 rounded-xl bg-slate-900 flex items-center justify-center shrink-0 shadow-xs">
+              <ShoppingBag className="w-4 h-4 text-white" />
             </div>
             <div
               className={`transition-opacity duration-200 truncate ${
                 isCollapsed ? "lg:hidden" : "block"
               }`}
             >
-              <div className="flex items-center gap-1.5">
-                <span className="font-bold text-base tracking-tight text-[#0F172A]">
-                  OmniSync
-                </span>
-                <span className="text-[10px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded bg-slate-100 text-slate-700 border border-slate-200/80">
-                  D2C Ops
-                </span>
-              </div>
-              <p className="text-[11px] text-[#64748B] leading-none mt-0.5 truncate">
-                Fulfillment &amp; RTO Radar
+              <span className="font-semibold text-sm tracking-tight text-slate-900">
+                OmniSync
+              </span>
+              <p className="text-[11px] text-slate-500 leading-none mt-0.5 truncate">
+                Store Operations
               </p>
             </div>
           </Link>
@@ -540,11 +533,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         {/* Navigation Links */}
         <nav className="flex-1 px-3 py-5 space-y-1 overflow-y-auto">
           <div
-            className={`px-3 pb-2 text-[10px] font-semibold uppercase tracking-wider text-[#64748B] ${
+            className={`px-3 pb-2 text-[10px] font-semibold uppercase tracking-wider text-slate-400 ${
               isCollapsed ? "lg:text-center lg:px-0" : ""
             }`}
           >
-            {isCollapsed ? "•••" : "Operations Hub"}
+            {isCollapsed ? "•••" : "Navigation"}
           </div>
 
           {SIDEBAR_NAV_ITEMS.map((item) => {
@@ -657,30 +650,20 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </div>
         </nav>
 
-        {/* Sidebar Footer: Clean Sync Status & Collapse Toggle */}
+        {/* Sidebar Footer: Clean Status & Collapse Toggle */}
         <div className="p-3 border-t border-slate-100 space-y-2">
           <div
-            className={`rounded-lg bg-slate-50 border border-slate-200/80 p-3 ${
+            className={`rounded-lg bg-slate-50 border border-slate-200/80 p-2.5 ${
               isCollapsed ? "lg:hidden" : "block"
             }`}
           >
-            <div className="flex items-center justify-between text-xs font-medium text-slate-700">
+            <div className="flex items-center justify-between text-xs text-slate-600">
               <span className="flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-emerald-500" />
-                <span>Storefront Sync</span>
+                <span className="font-medium text-slate-700">Channels Connected</span>
               </span>
-              <span className="text-[11px] text-slate-500">
-                {sseConnected ? "Active" : "Connecting"}
-              </span>
+              <span className="text-[11px] font-mono text-slate-400">PKR</span>
             </div>
-            <button
-              type="button"
-              onClick={handleOpenActivityDrawer}
-              className="mt-2.5 w-full inline-flex items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-medium bg-white hover:bg-slate-50 text-slate-700 border border-slate-200/80 shadow-[0_1px_2px_rgba(0,0,0,0.03)] transition-colors cursor-pointer"
-            >
-              <Activity className="w-3.5 h-3.5 text-slate-500" />
-              <span>Sync Audit Logs</span>
-            </button>
           </div>
 
           <button
@@ -704,20 +687,23 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Persistent Top Navigation / Header Bar */}
-        <header className="h-16 px-4 sm:px-6 lg:px-8 border-b border-slate-200/80 bg-white/90 backdrop-blur-md flex items-center justify-between sticky top-0 z-30 print:hidden">
+        {/* Persistent Top Navigation / Header Bar */}
+        <header className="h-16 px-4 sm:px-6 lg:px-8 border-b border-slate-200/80 bg-white flex items-center justify-between sticky top-0 z-30 print:hidden">
           <div className="flex items-center gap-3 min-w-0">
             <button
               type="button"
               onClick={() => setMobileDrawerOpen(true)}
               aria-label="Open navigation drawer"
-              className="lg:hidden p-2 rounded-xl text-[#475569] hover:text-[#0F172A] hover:bg-slate-100 border border-slate-200/80 active:scale-[0.98] transition-transform duration-100 ease-in-out"
+              className="lg:hidden p-2 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 border border-slate-200/80 active:scale-[0.98] transition-transform duration-100 ease-in-out"
             >
               <Menu className="w-4 h-4" />
             </button>
 
             <div className="flex lg:hidden items-center gap-2">
-              <ShieldCheck className="w-4 h-4 text-[#16A34A]" />
-              <span className="font-bold text-sm text-[#0F172A]">OmniSync</span>
+              <div className="w-7 h-7 rounded-lg bg-slate-900 flex items-center justify-center text-white">
+                <ShoppingBag className="w-3.5 h-3.5" />
+              </div>
+              <span className="font-semibold text-sm text-slate-900">OmniSync</span>
             </div>
 
             {/* Simple Search Bar */}
@@ -738,76 +724,33 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             </div>
           </div>
 
-          {/* Right Actions: RBAC Role, Simulate, Notification Bell & User Avatar */}
-          <div className="flex items-center gap-2">
-            {/* Active RBAC Role Selector */}
+          {/* Minimal Top Bar Actions: Role Switcher & User Avatar / Logout */}
+          <div className="flex items-center gap-3">
+            {/* Role Switcher (Owner/Staff) */}
             <div className="flex items-center gap-1.5 rounded-lg bg-slate-50 border border-slate-200/80 px-2.5 py-1.5">
-              <span className="hidden sm:inline text-[11px] font-medium text-slate-500">
+              <span className="hidden sm:inline text-xs text-slate-500 font-medium">
                 Role:
               </span>
               <select
-                aria-label="Switch Active RBAC User Role"
+                aria-label="Switch User Role"
                 value={currentRole}
                 onChange={(e) => setCurrentRole(e.target.value as UserRole)}
                 className="bg-transparent text-xs font-semibold text-slate-900 focus:outline-none cursor-pointer"
               >
-                {ALL_ROLES.map((r) => (
-                  <option
-                    key={r}
-                    value={r}
-                    className="bg-white text-slate-900"
-                  >
-                    {r}
-                  </option>
-                ))}
+                <option value="OWNER">Owner (Admin)</option>
+                <option value="WAREHOUSE">Warehouse Staff</option>
+                <option value="SUPPORT">Support Staff</option>
+                <option value="VIEWER">Staff (Viewer)</option>
               </select>
             </div>
 
-            <button
-              type="button"
-              onClick={() => void handleSimulateIncomingHook()}
-              className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-white hover:bg-slate-50 text-slate-700 border border-slate-200/80 shadow-[0_1px_2px_rgba(0,0,0,0.03)] active:scale-[0.98] transition-colors cursor-pointer"
-              title="Dispatch simulated incoming order webhook"
-            >
-              <Webhook className="w-3.5 h-3.5 text-slate-500" />
-              <span>Simulate</span>
-            </button>
-
-            <Link
-              href="/settings/team"
-              className={`p-2 rounded-lg border transition-colors active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-slate-900/10 focus-visible:outline-none ${
-                pathname?.startsWith("/settings/team")
-                  ? "bg-slate-100 text-slate-900 border-slate-300"
-                  : "bg-white text-slate-600 hover:text-slate-900 border-slate-200/80 hover:bg-slate-50"
-              }`}
-              title="Team & RBAC Permissions"
-              aria-label="Team and RBAC Settings"
-            >
-              <SlidersHorizontal className="w-4 h-4" />
-            </Link>
-
-            <button
-              type="button"
-              onClick={handleOpenActivityDrawer}
-              aria-label="Open Sync Logs and Notifications"
-              title="Sync Logs & Notifications"
-              className="relative p-2 rounded-lg bg-white hover:bg-slate-50 text-slate-600 hover:text-slate-900 border border-slate-200/80 shadow-[0_1px_2px_rgba(0,0,0,0.03)] transition-colors cursor-pointer"
-            >
-              <Bell className="w-4 h-4" />
-              {unreadCount > 0 && (
-                <span className="absolute -top-1 -right-1 min-w-[16px] h-4 px-1 rounded-full bg-red-600 text-white text-[10px] font-bold flex items-center justify-center">
-                  {unreadCount}
-                </span>
-              )}
-            </button>
-
             {/* User Avatar & Logout */}
-            <div className="flex items-center gap-2 pl-2 border-l border-slate-200/80">
+            <div className="flex items-center gap-2 pl-3 border-l border-slate-200/80">
               <div
                 className="w-8 h-8 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-xs font-semibold text-slate-700"
-                title={`Logged in as ${currentRole}`}
+                title={`Signed in as ${currentRole}`}
               >
-                {currentRole === "OWNER" ? "AD" : currentRole.slice(0, 2)}
+                {currentRole === "OWNER" ? "ZT" : currentRole.slice(0, 2)}
               </div>
 
               <button
@@ -817,7 +760,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                   router.push("/login");
                   router.refresh();
                 }}
-                title="Sign out of OmniSync session"
+                title="Sign out"
                 aria-label="Sign out"
                 className="p-1.5 rounded-lg text-slate-500 hover:text-red-700 hover:bg-red-50 transition-colors cursor-pointer"
               >

@@ -48,11 +48,11 @@ export interface OmniSyncSettingsPreferences {
 const SETTINGS_STORAGE_KEY = "omnisync_settings_preferences_v1";
 
 const DEFAULT_SETTINGS: OmniSyncSettingsPreferences = {
-  storeName: "OmniSync Global Flagship",
-  supportEmail: "ops@omnisync.io",
-  warehouseRegion: "US-East (Newark Fulfillment Hub)",
-  currency: "USD",
-  timeZone: "UTC (Coordinated Universal Time)",
+  storeName: "OmniSync Pakistan Flagship",
+  supportEmail: "support@omnisync.com",
+  warehouseRegion: "Pakistan (Lahore Hub)",
+  currency: "PKR",
+  timeZone: "Asia/Karachi (PKT - UTC+5)",
   themePreference: "system",
   densityPreference: "comfortable",
   enableGlassEffects: false,

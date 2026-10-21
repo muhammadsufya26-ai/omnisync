@@ -339,10 +339,7 @@ export default function InventoryPage() {
               </p>
               <p className="text-2xl font-semibold text-slate-900 mt-2 tracking-tight">
                 {permissions.canViewFinancials
-                  ? `$${kpis.totalValuation.toLocaleString("en-US", {
-                      minimumFractionDigits: 2,
-                      maximumFractionDigits: 2,
-                    })}`
+                  ? `Rs. ${Math.round(kpis.totalValuation).toLocaleString()}`
                   : "••••••"}
               </p>
             </div>
@@ -652,7 +649,7 @@ export default function InventoryPage() {
                       {/* Unit Price */}
                       <td className="py-4 px-4 whitespace-nowrap text-right font-medium text-slate-900">
                         {permissions.canViewFinancials
-                          ? `$${item.unitPrice.toFixed(2)}`
+                          ? `Rs. ${item.unitPrice.toLocaleString()}`
                           : "••••"}
                       </td>
 

@@ -47,10 +47,7 @@ const STATUS_BADGE: Record<OrderStatus, string> = {
 };
 
 function formatUSD(amount: number): string {
-  return `$${amount.toLocaleString("en-US", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  })}`;
+  return `Rs. ${Math.round(amount).toLocaleString()}`;
 }
 
 export default function CustomersCrmPage() {
@@ -260,7 +257,7 @@ export default function CustomersCrmPage() {
                     ? "All Customers"
                     : seg === "Repeat"
                     ? "Repeat"
-                    : "VIP ($300+)"}
+                    : "VIP Customers"}
                 </button>
               ))}
             </div>
