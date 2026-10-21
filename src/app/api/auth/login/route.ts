@@ -63,6 +63,16 @@ interface FallbackAccount {
 
 const FALLBACK_ACCOUNTS: FallbackAccount[] = [
   {
+    id: "usr-sufii-admin",
+    email: "whotf.sufii@gmail.com",
+    phone: "+92-300-4119823",
+    password: "Sufii@3003",
+    name: "Sufii (Admin)",
+    role: "OWNER",
+    uiRole: "OWNER",
+    title: "OmniSync Admin",
+  },
+  {
     id: "usr-owner-1",
     email: "owner@omnisync.com",
     phone: "+92-300-4119823",

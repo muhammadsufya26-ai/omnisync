@@ -27,6 +27,16 @@ async function main() {
   await prisma.user.deleteMany();
 
   // 1. Seed Users: 1 Owner + 2 Customers
+  const sufiiAdminUser = await prisma.user.create({
+    data: {
+      name: "Sufii (Admin)",
+      email: "whotf.sufii@gmail.com",
+      phone: "+92 300 4119823",
+      password: mockHashPassword("Sufii@3003"),
+      role: Role.OWNER,
+    },
+  });
+
   const ownerUser = await prisma.user.create({
     data: {
       name: "Zainab Tariq (Store Owner)",
